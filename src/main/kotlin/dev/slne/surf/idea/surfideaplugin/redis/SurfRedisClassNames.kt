@@ -7,4 +7,6 @@ object SurfRedisClassNames {
     const val REDIS_EVENT_CLASS = "dev.slne.surf.redis.event.RedisEvent"
     const val REDIS_REQUEST_CLASS = "dev.slne.surf.redis.request.RedisRequest"
     const val REDIS_RESPONSE_CLASS = "dev.slne.surf.redis.request.RedisResponse"
+
+    const val REQUEST_CONTEXT_CLASS = "dev.slne.surf.redis.request.RequestContext"
 }
