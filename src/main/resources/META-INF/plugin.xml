@@ -96,4 +96,12 @@
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
         <supportsKotlinPluginMode supportsK2="true"/>
     </extensions>
+
+    <actions>
+        <action id="dev.slne.surf.idea.surfideaplugin.redis.generation.GenerateRedisEventHandlerCodeInsightAction"
+                class="dev.slne.surf.idea.surfideaplugin.redis.generation.GenerateRedisEventHandlerCodeInsightAction"
+                text="Generate Redis Event Handler">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>
