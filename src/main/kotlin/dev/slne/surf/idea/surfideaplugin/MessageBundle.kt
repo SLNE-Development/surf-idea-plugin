@@ -5,10 +5,10 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.annotations.PropertyKey
 import java.util.function.Supplier
 
-private const val BUNDLE = "messages.MessageBundle"
+private const val BUNDLE = "messages.SurfBundle"
 
-internal object MyMessageBundle {
-    private val instance = DynamicBundle(MyMessageBundle::class.java, BUNDLE)
+internal object SurfBundle {
+    private val instance = DynamicBundle(SurfBundle::class.java, BUNDLE)
 
     @JvmStatic
     @Nls

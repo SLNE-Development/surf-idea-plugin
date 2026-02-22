@@ -1,3 +1,5 @@
+import org.jetbrains.intellij.platform.gradle.tasks.BuildSearchableOptionsTask
+
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "2.3.0"
@@ -22,16 +24,24 @@ dependencies {
         intellijIdea("2025.3.2")
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
 
-        // Add plugin dependencies for compilation here:
-
         composeUI()
-
         bundledPlugin("org.jetbrains.kotlin")
+
+        pluginVerifier()
+        zipSigner()
     }
 }
 
 intellijPlatform {
     pluginConfiguration {
+        name = "Surf Framework Support"
+        version = project.version.toString()
+        description = """
+            IntelliJ IDEA plugin providing inspections, code generation, and framework detection
+            for the Surf ecosystem: surf-api, surf-redis, and surf-database-r2dbc.
+        """.trimIndent()
+
+
         ideaVersion {
 //            sinceBuild = "252.25557"
         }
@@ -40,6 +50,12 @@ intellijPlatform {
             Initial version
         """.trimIndent()
     }
+
+    pluginVerification {
+        ides {
+            recommended()
+        }
+    }
 }
 
 tasks {
@@ -47,6 +63,10 @@ tasks {
     withType<JavaCompile> {
         sourceCompatibility = "21"
         targetCompatibility = "21"
+    }
+
+    buildSearchableOptions {
+        enabled = false
     }
 }
 
