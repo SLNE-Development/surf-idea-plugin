@@ -74,6 +74,15 @@
                          implementationClass="dev.slne.surf.idea.surfideaplugin.redis.inspections.RedisRequestHandlerParameterNameInspection"
                          key="inspection.redis.request.handler.parameter.name.inspection.display.name"
         />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.redis.group.name"
+                         shortName="RedisEventHandlerParameterNameInspection"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.inspections.RedisEventHandlerParameterNameInspection"
+                         key="inspection.redis.event.handler.parameter.name.inspection.display.name"
+        />
 
         <implicitUsageProvider
                 implementation="dev.slne.surf.idea.surfideaplugin.redis.references.RedisEventHandlerImplicitUsageProvider"/>

@@ -46,7 +46,7 @@ class RedisEventHandlerParameterInspection :
     }
 
     override fun getApplicableRanges(element: KtNamedFunction): List<TextRange> {
-        return ApplicabilityRange.single(element) { it.nameIdentifier ?: it }
+        return ApplicabilityRange.single(element) { it.valueParameterList }
     }
 
     override fun buildVisitor(
