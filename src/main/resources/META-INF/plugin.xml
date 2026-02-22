@@ -86,6 +86,8 @@
 
         <implicitUsageProvider
                 implementation="dev.slne.surf.idea.surfideaplugin.redis.references.RedisEventHandlerImplicitUsageProvider"/>
+        <lang.inspectionSuppressor language="kotlin"
+                                   implementationClass="dev.slne.surf.idea.surfideaplugin.redis.references.RedisEventHandlerInspectionSuppressor"/>
         <codeInsight.lineMarkerProvider language="kotlin"
                                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.makers.RedisEventHandlerLineMarkerProvider"/>
     </extensions>

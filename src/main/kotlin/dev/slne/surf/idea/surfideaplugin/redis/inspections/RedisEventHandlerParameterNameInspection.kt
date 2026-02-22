@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.idea.codeinsight.api.applicable.inspections.KotlinAp
 import org.jetbrains.kotlin.idea.codeinsights.impl.base.applicators.ApplicabilityRanges
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtVisitor
 import org.jetbrains.kotlin.psi.parameterVisitor
@@ -33,7 +34,7 @@ class RedisEventHandlerParameterNameInspection : KotlinApplicableInspectionBase<
 
     override fun isApplicableByPsi(element: KtParameter): Boolean {
         if (!SurfLibraryDetector.hasSurfRedis(element)) return false
-        val function = element.ownerFunction ?: return false
+        val function = element.ownerFunction as? KtNamedFunction ?: return false
         if (!KotlinPsiHeuristics.hasAnnotation(function, onRedisEventAnnotation)) return false
         return element.name != SurfRedisConstants.REDIS_EVENT_HANDLER_PARAMETER_NAME
     }
@@ -43,7 +44,7 @@ class RedisEventHandlerParameterNameInspection : KotlinApplicableInspectionBase<
     }
 
     override fun KaSession.prepareContext(element: KtParameter): Unit? {
-        val function = element.ownerFunction ?: return null
+        val function = element.ownerFunction as? KtNamedFunction ?: return null
         val hasAnnotation = function.symbol.annotations.any {
             it.classId == onRedisEventAnnotationClassId
         }
