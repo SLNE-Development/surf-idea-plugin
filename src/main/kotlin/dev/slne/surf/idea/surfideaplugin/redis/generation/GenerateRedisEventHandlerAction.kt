@@ -16,7 +16,8 @@ import com.intellij.refactoring.RefactoringBundle
 import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
 import dev.slne.surf.idea.surfideaplugin.common.util.isConcreteClass
 import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisClassNames
-import dev.slne.surf.idea.surfideaplugin.redis.generation.ui.RedisEventHandlerGenerationDialog
+import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisConstants
+import dev.slne.surf.idea.surfideaplugin.redis.generation.ui.RedisHandlerNameSelectionDialog
 import kotlinx.coroutines.launch
 import org.jetbrains.kotlin.idea.base.codeInsight.ShortenReferencesFacility
 import org.jetbrains.kotlin.idea.base.util.module
@@ -57,7 +58,8 @@ class GenerateRedisEventHandlerAction : CodeInsightActionHandler {
         val fqChosenClassName = chosenClass.qualifiedName ?: return
         val defaultHandlerName = "on" + shortChosenClassName.removeSuffix("Event")
 
-        val dialog = RedisEventHandlerGenerationDialog(editor, shortChosenClassName, defaultHandlerName)
+        val dialog =
+            RedisHandlerNameSelectionDialog(editor, "Redis Event Class", shortChosenClassName, defaultHandlerName)
         if (!dialog.showAndGet()) return
 
         currentThreadCoroutineScope().launch {
@@ -80,11 +82,9 @@ class GenerateRedisEventHandlerAction : CodeInsightActionHandler {
     ) {
         val annotationFqn = SurfRedisClassNames.ON_REDIS_EVENT_ANNOTATION
 
-        val paramName = "event"
-
         val functionText = """
             @$annotationFqn
-            fun $handlerName($paramName: $eventClassName) {
+            fun $handlerName(${SurfRedisConstants.REDIS_EVENT_HANDLER_PARAMETER_NAME}: $eventClassName) {
             }
         """.trimIndent()
 

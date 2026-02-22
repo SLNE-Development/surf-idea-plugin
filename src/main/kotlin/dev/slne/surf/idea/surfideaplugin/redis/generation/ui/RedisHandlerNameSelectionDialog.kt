@@ -6,13 +6,14 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.dsl.builder.*
 import javax.swing.JComponent
 
-class RedisEventHandlerGenerationDialog(
+class RedisHandlerNameSelectionDialog(
     editor: Editor,
+    private val eventClassDialogDisplayName: String,
     private val eventClassName: String,
     defaultHandlerName: String
 ) : DialogWrapper(editor.project, editor.component, false, IdeModalityType.MODELESS) {
 
-    private val graph = PropertyGraph("RedisEventHandlerGenerationDialog")
+    private val graph = PropertyGraph("RedisHandlerNameSelectionDialog")
     private val handlerNameProperty = graph.property(defaultHandlerName)
 
     val chosenName by handlerNameProperty
@@ -23,7 +24,7 @@ class RedisEventHandlerGenerationDialog(
     }
 
     override fun createCenterPanel(): JComponent = panel {
-        row("Event class:") {
+        row("$eventClassDialogDisplayName:") {
             label(eventClassName)
                 .align(AlignX.FILL)
         }

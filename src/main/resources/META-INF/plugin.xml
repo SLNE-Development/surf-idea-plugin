@@ -103,5 +103,10 @@
                 text="Generate Redis Event Handler">
             <add-to-group group-id="GenerateGroup" anchor="last"/>
         </action>
+        <action id="dev.slne.surf.idea.surfideaplugin.redis.generation.GenerateRedisRequestHandlerCodeInsightAction"
+                class="dev.slne.surf.idea.surfideaplugin.redis.generation.GenerateRedisRequestHandlerCodeInsightAction"
+                text="Generate Redis Request Handler" >
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
     </actions>
 </idea-plugin>
