@@ -26,7 +26,6 @@ class RedisHandlerModifierInspection : KotlinApplicableInspectionBase<KtNamedFun
     ).map { FqName(it) }
 
     private val forbiddenModifier = setOf(
-        KtTokens.PRIVATE_KEYWORD,
         KtTokens.ABSTRACT_KEYWORD,
         KtTokens.OPEN_KEYWORD,
         KtTokens.OVERRIDE_KEYWORD,
