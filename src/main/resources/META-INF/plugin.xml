@@ -83,6 +83,15 @@
                          implementationClass="dev.slne.surf.idea.surfideaplugin.redis.inspections.RedisEventHandlerParameterNameInspection"
                          key="inspection.redis.event.handler.parameter.name.inspection.display.name"
         />
+        <localInspection language="kotlin"
+                         groupKey="inspection.redis.group.name"
+                         groupPath="Surf framework"
+                         shortName="RedisHandlerModifierInspection"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.inspections.RedisHandlerModifierInspection"
+                         key="inspection.redis.handler.modifier.inspection.display.name"
+        />
 
         <implicitUsageProvider
                 implementation="dev.slne.surf.idea.surfideaplugin.redis.references.RedisEventHandlerImplicitUsageProvider"/>
@@ -105,7 +114,7 @@
         </action>
         <action id="dev.slne.surf.idea.surfideaplugin.redis.generation.GenerateRedisRequestHandlerCodeInsightAction"
                 class="dev.slne.surf.idea.surfideaplugin.redis.generation.GenerateRedisRequestHandlerCodeInsightAction"
-                text="Generate Redis Request Handler" >
+                text="Generate Redis Request Handler">
             <add-to-group group-id="GenerateGroup" anchor="last"/>
         </action>
     </actions>
