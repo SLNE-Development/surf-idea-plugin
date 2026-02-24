@@ -1,0 +1,33 @@
+<html>
+<body>
+<p>
+    Detects when RequestContext escapes an @HandleRedisRequest handler.
+</p>
+
+<p>
+    Reports passing RequestContext to other functions, returning it from the handler, or assigning it to properties or external receivers.
+    RequestContext must remain inside the annotated handler and be used only to send a response.
+</p>
+
+<p>
+    The inspection ignores calls to <code>respond</code> on the RequestContext instance.
+</p>
+
+<p>
+    Example:
+</p>
+
+<pre><code>
+@HandleRedisRequest
+fun handle(context: RequestContext) {
+    process(context)          // reported
+    val stored = context      // reported
+    return context            // reported
+}
+</code></pre>
+<!-- tooltip end -->
+<p>
+    This inspection helps prevent leaking RequestContext outside the handler scope.
+</p>
+</body>
+</html>
