@@ -1,0 +1,12 @@
+<html>
+<body>
+Reports <code>@HandleRedisRequest</code> handler methods that do not call
+<code>context.respond(...)</code>.
+<p>
+    Every request handler must send a response via the <code>RequestContext</code>,
+    otherwise the caller will time out waiting for a reply.
+</p>
+<!-- tooltip end -->
+<p>The handler function must contain at least one <code>context.respond(...)</code> call.</p>
+</body>
+</html>

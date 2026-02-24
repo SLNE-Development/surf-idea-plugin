@@ -92,6 +92,15 @@
                          implementationClass="dev.slne.surf.idea.surfideaplugin.redis.inspections.RedisHandlerModifierInspection"
                          key="inspection.redis.handler.modifier.inspection.display.name"
         />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.redis.group.name"
+                         shortName="RedisRequestHandlerMissingRespond"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.inspections.RedisRequestHandlerMissingRespondInspection"
+                         key="inspection.redis.request.handler.missing.respond.display.name"
+        />
 
         <implicitUsageProvider
                 implementation="dev.slne.surf.idea.surfideaplugin.redis.references.RedisEventHandlerImplicitUsageProvider"/>
