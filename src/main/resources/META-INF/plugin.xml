@@ -128,6 +128,8 @@
                                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.makers.RedisEventHandlerLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="kotlin"
                                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.makers.RedisEventClassLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="kotlin"
+                                        implementationClass="dev.slne.surf.idea.surfideaplugin.redis.makers.RedisPublishCallLineMarkerProvider"/>
     </extensions>
 
 
