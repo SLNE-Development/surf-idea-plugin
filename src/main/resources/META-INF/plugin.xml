@@ -130,6 +130,8 @@
                                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.makers.RedisEventClassLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="kotlin"
                                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.makers.RedisPublishCallLineMarkerProvider"/>
+        <codeInsight.template.postfixTemplateProvider language="kotlin"
+                                                      implementationClass="dev.slne.surf.idea.surfideaplugin.redis.postfix.SurfRedisPostfixTemplateProvider"/>
     </extensions>
 
 

@@ -1,0 +1,25 @@
+<html>
+<body>
+<p>
+    Expands a Redis event expression into a publish call.
+</p>
+
+<p>
+    Provides a <code>.publish</code> postfix template for expressions of type <code>RedisEvent</code>.
+    When applied, it wraps the selected expression with <code>redisApi.publishEvent(...)</code> and places the caret after the call.
+    Use this template to quickly publish an event without writing the full method call.
+</p>
+
+<pre><code class="language-kotlin">
+// Before
+event.publish
+
+// After
+redisApi.publishEvent(event)
+</code></pre>
+<!-- tooltip end -->
+<p>
+    Available for expressions that are subtypes of <code>RedisEvent</code>.
+</p>
+</body>
+</html>
