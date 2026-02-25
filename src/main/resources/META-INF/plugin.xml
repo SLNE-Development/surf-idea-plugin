@@ -110,6 +110,15 @@
                          implementationClass="dev.slne.surf.idea.surfideaplugin.redis.inspections.RedisRequestHandlerContextLeakInspection"
                          key="inspection.redis.request.handler.context.leak.display.name"
         />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.redis.group.name"
+                         shortName="RedisHandlerReturnType"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.inspections.RedisHandlerReturnTypeInspection"
+                         key="inspection.redis.handler.return.type.display.name"
+        />
 
         <implicitUsageProvider
                 implementation="dev.slne.surf.idea.surfideaplugin.redis.references.RedisEventHandlerImplicitUsageProvider"/>

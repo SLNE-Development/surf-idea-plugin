@@ -1,0 +1,32 @@
+<html>
+<body>
+<p>
+    Reports Redis handler methods annotated with <code>@OnRedisEvent</code> or <code>@HandleRedisRequest</code> that
+    declare a non-<code>Unit</code> return type.
+</p>
+
+<p>
+    The return value of these handler methods is ignored, so returning a value can be misleading.
+    Use <code>Unit</code> (or omit an explicit return type) to make the intent clear.
+</p>
+
+<pre><code>
+@OnRedisEvent
+fun onEvent(event: RedisEvent): String {
+    return "ok"
+}
+</code></pre>
+
+<pre><code>
+@OnRedisEvent
+fun onEvent(event: RedisEvent) {
+    // ...
+}
+</code></pre>
+
+<!-- tooltip end -->
+<p>
+    The quick-fix removes the explicit return type from the function signature.
+</p>
+</body>
+</html>
