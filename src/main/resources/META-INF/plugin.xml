@@ -132,6 +132,16 @@
                                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.makers.RedisPublishCallLineMarkerProvider"/>
         <codeInsight.template.postfixTemplateProvider language="kotlin"
                                                       implementationClass="dev.slne.surf.idea.surfideaplugin.redis.postfix.SurfRedisPostfixTemplateProvider"/>
+        <codeInsight.declarativeInlayProvider group="OTHER_GROUP"
+                                              implementationClass="dev.slne.surf.idea.surfideaplugin.redis.hints.SurfRedisSyncKeyInlayHintsProvider"
+                                              isEnabledByDefault="true"
+                                              language="kotlin"
+                                              nameKey="inlay.hints.redis.sync.id.name"
+                                              descriptionKey="inlay.hints.redis.sync.id.description"
+                                              providerId="surf.redis.sync.structure.id.inlay.hints"
+        />
+        <codeInsight.parameterNameHintsSuppressor
+                implementation="dev.slne.surf.idea.surfideaplugin.redis.hints.SurfRedisSyncParameterHintsSuppressor" />
     </extensions>
 
 
