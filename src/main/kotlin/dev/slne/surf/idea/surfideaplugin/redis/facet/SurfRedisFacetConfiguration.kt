@@ -10,6 +10,6 @@ class SurfRedisFacetConfiguration : FacetConfiguration {
         editorContext: FacetEditorContext,
         validatorsManager: FacetValidatorsManager
     ): Array<out FacetEditorTab> {
-        return emptyArray()
+        return arrayOf(SurfRedisFacetEditorTab())
     }
 }

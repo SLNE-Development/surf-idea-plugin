@@ -64,7 +64,7 @@ class RedisHandlerModifierInspection : KotlinApplicableInspectionBase<KtNamedFun
             element,
             rangeInElement,
             "Redis handler '${element.name}' must be accessible for MethodHandles.Lookup. " +
-                    "Remove modifiers like private/abstract/open/override/inline.",
+                    "Remove modifiers like abstract/open/override/inline.",
             ProblemHighlightType.WARNING,
             onTheFly,
             *forbiddenModifier.map {

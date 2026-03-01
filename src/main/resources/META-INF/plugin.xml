@@ -20,11 +20,14 @@
 
         <!-- Surf-API -->
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFacetType"/>
-        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFrameworkDetector"/>
+<!--        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFrameworkDetector"/>-->
 
         <!-- Surf-Redis -->
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFacetType"/>
-        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFrameworkDetector"/>
+<!--        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFrameworkDetector"/>-->
+
+        <postStartupActivity implementation="dev.slne.surf.idea.surfideaplugin.common.facet.SurfFacetSetupActivity" />
+
 
         <localInspection
                 language="kotlin"
@@ -141,7 +144,13 @@
                                               providerId="surf.redis.sync.structure.id.inlay.hints"
         />
         <codeInsight.parameterNameHintsSuppressor
-                implementation="dev.slne.surf.idea.surfideaplugin.redis.hints.SurfRedisSyncParameterHintsSuppressor" />
+                implementation="dev.slne.surf.idea.surfideaplugin.redis.hints.SurfRedisSyncParameterHintsSuppressor"/>
+        <facet.toolWindow facetIdList="surf-redis"
+                          factoryClass="dev.slne.surf.idea.surfideaplugin.redis.toolwindow.SurfRedisToolWindowFactory"
+                          id="SurfRedis"
+                          anchor="right"
+                          icon="AllIcons.Toolwindows.ToolWindowPalette"
+        />
     </extensions>
 
 

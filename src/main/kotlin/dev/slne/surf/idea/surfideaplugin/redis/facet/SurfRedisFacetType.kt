@@ -8,6 +8,7 @@ import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.util.NlsSafe
 import javax.swing.Icon
 
+
 class SurfRedisFacetType : FacetType<SurfRedisFacet, SurfRedisFacetConfiguration>(ID, STRING_ID, DISPLAY_NAME) {
     companion object {
         val ID = FacetTypeId<SurfRedisFacet>("surf-redis")
@@ -25,7 +26,6 @@ class SurfRedisFacetType : FacetType<SurfRedisFacet, SurfRedisFacetConfiguration
     ): SurfRedisFacet = SurfRedisFacet(this, module, name, configuration, underlyingFacet)
 
     override fun isSuitableModuleType(moduleType: ModuleType<*>?) = true
-
     override fun getIcon(): Icon? {
         return super.getIcon()
     }
