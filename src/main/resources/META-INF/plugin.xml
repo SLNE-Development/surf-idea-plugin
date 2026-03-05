@@ -182,6 +182,14 @@
     </extensions>
 
     <actions>
+        <!-- Surf-API -->
+        <action id="dev.slne.surf.idea.surfideaplugin.surfapi.paper.generation.GeneratePaperEventListenerCodeInsightAction"
+                class="dev.slne.surf.idea.surfideaplugin.surfapi.paper.generation.GeneratePaperEventListenerCodeInsightAction"
+                text="Generate Paper Event Listener">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+
+        <!-- Surf-Redis -->
         <action id="dev.slne.surf.idea.surfideaplugin.redis.generation.GenerateRedisEventHandlerCodeInsightAction"
                 class="dev.slne.surf.idea.surfideaplugin.redis.generation.GenerateRedisEventHandlerCodeInsightAction"
                 text="Generate Redis Event Handler">
