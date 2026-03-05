@@ -22,12 +22,22 @@
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFacetType"/>
 <!--        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFrameworkDetector"/>-->
 
+        <localInspection
+                language="kotlin"
+                groupPath="Surf framework"
+                groupName="General"
+                shortName="MustBeInvokedByOverridersInspection"
+                enabledByDefault="true"
+                level="WARNING"
+                implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.inspections.common.MustBeInvokedByOverridersInspection"
+                key="inspection.must.be.invoked.by.overriders.display.name"
+        />
+
         <!-- Surf-Redis -->
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFacetType"/>
 <!--        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFrameworkDetector"/>-->
 
         <postStartupActivity implementation="dev.slne.surf.idea.surfideaplugin.common.facet.SurfFacetSetupActivity" />
-
 
         <localInspection
                 language="kotlin"
