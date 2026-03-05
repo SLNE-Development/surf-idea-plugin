@@ -32,6 +32,19 @@
                 implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.inspections.common.MustBeInvokedByOverridersInspection"
                 key="inspection.must.be.invoked.by.overriders.display.name"
         />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfapi.group.name"
+                         shortName="InternalApiUsage"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.inspections.internalapi.InternalApiUsageInspection"
+                         key="inspection.surfapi.internal.api.usage.display.name"
+        />
+
+        <completion.contributor language="kotlin"
+                                order="first,before KotlinCompletionContributor"
+                                implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.completion.InternalApiCompletionContributor" />
 
         <!-- Surf-Redis -->
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFacetType"/>

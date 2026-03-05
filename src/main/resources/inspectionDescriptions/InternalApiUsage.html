@@ -1,0 +1,23 @@
+<html>
+<body>
+Reports usages of symbols annotated with an <code>@InternalAPIMarker</code>-annotated annotation from a library dependency.
+<p>
+    Internal API symbols from Surf framework libraries are not intended for external use.
+    They behave similarly to <code>DeprecationLevel.HIDDEN</code>: they should not appear in
+    code completion, and using them directly is reported as an error.
+</p>
+<p>
+    A symbol is considered internal API when:
+</p>
+<ul>
+    <li>It comes from a library dependency (not from the current project's source roots)</li>
+    <li>It has at least one annotation whose annotation class is itself annotated with
+        <code>@InternalAPIMarker</code></li>
+</ul>
+<!-- tooltip end -->
+<p>
+    To fix this, avoid using internal API symbols directly. Instead, use the public API surface
+    provided by the library.
+</p>
+</body>
+</html>
