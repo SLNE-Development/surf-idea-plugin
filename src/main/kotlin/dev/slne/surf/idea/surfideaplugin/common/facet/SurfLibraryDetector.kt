@@ -23,6 +23,7 @@ object SurfLibraryDetector {
     @RequiresReadLock
     fun isClassInModuleClasspath(module: Module, fqn: String): Boolean {
         ThreadingAssertions.assertReadAccess()
+        if (module.isDisposed) return false
 
         val scope = module.getModuleWithDependenciesAndLibrariesScope(false)
         val javaPsiFacade = JavaPsiFacade.getInstance(module.project)
