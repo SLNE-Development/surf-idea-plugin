@@ -21,7 +21,7 @@ suspend fun onEvent(event: MyEvent) {  // suspend not allowed
 <pre><code>
 @OnRedisEvent
 fun onEvent(event: MyEvent) {
-    coroutineScope.launch {
+    myCoroutineScope.launch {
         // async work here
     }
 }
