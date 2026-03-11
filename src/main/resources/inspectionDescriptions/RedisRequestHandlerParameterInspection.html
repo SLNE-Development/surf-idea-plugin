@@ -1,27 +1,38 @@
 <html>
 <body>
-Write your description here.
-Start the description with a verb in 3rd person singular, like reports, detects, highlights.
-In the first sentence, briefly explain what exactly the inspection helps you detect.
-Make sure the sentence is not very long and complicated.
+Reports <code>@HandleRedisRequest</code> handler methods with incorrect parameter signatures.
 <p>
-    The first sentence must be in a dedicated paragraph separated from the rest of the text. This will make the
-    description easier to read.
-    Make sure the description doesn’t just repeat the inspection title.
+    A <code>@HandleRedisRequest</code> handler must have exactly one parameter of type
+    <code>RequestContext&lt;T&gt;</code>, where <code>T</code> is a subtype of <code>RedisRequest</code>.
+    The <code>RequestContext</code> provides access to the incoming request and the mechanism to
+    send a response.
 </p>
 <p>
-    See https://plugins.jetbrains.com/docs/intellij/inspections.html#descriptions for more information.
-</p>
-<p>
-    Embed code snippets:
+    Example of problematic code:
 </p>
 <pre><code>
-// automatically highlighted according to inspection registration 'language' attribute
+@HandleRedisRequest
+fun handle() { }  // Missing parameter
+
+@HandleRedisRequest
+fun handle(ctx: RequestContext, extra: String) { }  // Too many parameters
+
+@HandleRedisRequest
+fun handle(request: MyRequest) { }  // Wrong parameter type
+</code></pre>
+<p>
+    Correct code:
+</p>
+<pre><code>
+@HandleRedisRequest
+fun handle(context: RequestContext&lt;MyRequest&gt;) {
+    val request = context.request
+    context.respond(MyResponse(...))
+}
 </code></pre>
 <!-- tooltip end -->
-<p>Text after this comment will only be shown in the settings of the inspection.</p>
-
-<p>To open related settings directly from the description, add a link with `settings://$` optionally followed by `?$` to
-    pre-select a UI element.</p>
+<p>
+    Ensure the handler has exactly one parameter of type <code>RequestContext&lt;T : RedisRequest&gt;</code>.
+</p>
 </body>
 </html>

@@ -4,8 +4,43 @@
     <vendor url="https://github.com/SLNE-Development/">SLNE-Development</vendor>
 
     <description><![CDATA[
-        Provides inspections, code generation, line markers, and framework detection
-        for surf-api (Paper/Velocity/Core), surf-redis, and surf-database-r2dbc.
+        <p>
+            <b>Surf Framework</b> is a comprehensive IntelliJ IDEA plugin that enhances development experience
+            for projects using the Surf ecosystem: <b>surf-api</b>, <b>surf-redis</b>, and <b>surf-database-r2dbc</b>.
+        </p>
+
+        <h3>Features</h3>
+
+        <h4>Surf API Support (Paper/Velocity/Core)</h4>
+        <ul>
+            <li>Internal API usage detection with error highlighting</li>
+            <li>Event listener code generation for Paper and Velocity platforms</li>
+            <li>@MustBeInvokedByOverriders annotation enforcement</li>
+        </ul>
+
+        <h4>Surf Redis Support</h4>
+        <ul>
+            <li>Inspections for @OnRedisEvent and @HandleRedisRequest handlers</li>
+            <li>Detection of missing @Serializable annotations on Redis event/request/response classes</li>
+            <li>Parameter validation for event and request handlers</li>
+            <li>RequestContext leak detection to prevent misuse</li>
+            <li>Handler modifier validation for MethodHandles compatibility</li>
+            <li>Code generation for Redis event and request handlers</li>
+            <li>Line markers for Redis events, handlers, and publish calls</li>
+            <li>Postfix templates for Redis operations</li>
+            <li>Inlay hints for Redis sync structure keys</li>
+        </ul>
+
+        <h4>Surf Database R2DBC Support</h4>
+        <ul>
+            <li>Transaction context inspections</li>
+        </ul>
+
+        <h4>General</h4>
+        <ul>
+            <li>Automatic framework detection when Surf libraries are on the classpath</li>
+            <li>Facet support for project configuration</li>
+        </ul>
     ]]></description>
 
     <depends>com.intellij.modules.compose</depends>
