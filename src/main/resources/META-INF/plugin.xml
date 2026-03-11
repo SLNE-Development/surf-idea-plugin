@@ -20,7 +20,7 @@
 
         <!-- Surf-API -->
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFacetType"/>
-<!--        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFrameworkDetector"/>-->
+        <!--        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFrameworkDetector"/>-->
 
         <localInspection
                 language="kotlin"
@@ -44,13 +44,19 @@
 
         <completion.contributor language="kotlin"
                                 order="first,before KotlinCompletionContributor"
-                                implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.completion.InternalApiCompletionContributor" />
+                                implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.completion.InternalApiCompletionContributor"/>
+        <implicitUsageProvider
+                implementation="dev.slne.surf.idea.surfideaplugin.surfapi.velocity.references.VelocityEventHandlerImplicitUsageProvider"
+        />
+        <lang.inspectionSuppressor language="kotlin"
+                                   implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.velocity.references.VelocityEventHandlerInspectionSuppressor"
+        />
 
         <!-- Surf-Redis -->
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFacetType"/>
-<!--        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFrameworkDetector"/>-->
+        <!--        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFrameworkDetector"/>-->
 
-        <postStartupActivity implementation="dev.slne.surf.idea.surfideaplugin.common.facet.SurfFacetSetupActivity" />
+        <postStartupActivity implementation="dev.slne.surf.idea.surfideaplugin.common.facet.SurfFacetSetupActivity"/>
 
         <localInspection
                 language="kotlin"
