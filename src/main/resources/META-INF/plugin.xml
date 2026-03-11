@@ -48,9 +48,13 @@
         <implicitUsageProvider
                 implementation="dev.slne.surf.idea.surfideaplugin.surfapi.velocity.references.VelocityEventHandlerImplicitUsageProvider"
         />
+        <implicitUsageProvider
+                implementation="dev.slne.surf.idea.surfideaplugin.surfapi.paper.references.PaperEventHandlerImplicitUsageProvider"/>
         <lang.inspectionSuppressor language="kotlin"
                                    implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.velocity.references.VelocityEventHandlerInspectionSuppressor"
         />
+        <lang.inspectionSuppressor language="kotlin"
+                                   implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.paper.references.PaperEventHandlerInspectionSuppressor"/>
 
         <!-- Surf-Redis -->
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFacetType"/>
