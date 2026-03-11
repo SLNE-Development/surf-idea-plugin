@@ -1,27 +1,28 @@
 <html lang="en">
 <body>
-Write your description here.
-Start the description with a verb in 3rd person singular, like reports, detects, highlights.
-In the first sentence, briefly explain what exactly the inspection helps you detect.
-Make sure the sentence is not very long and complicated.
+Reports classes that extend <code>RedisEvent</code>, <code>RedisRequest</code>, or <code>RedisResponse</code>
+but are missing the <code>@Serializable</code> annotation.
 <p>
-    The first sentence must be in a dedicated paragraph separated from the rest of the text. This will make the
-    description easier to read.
-    Make sure the description doesn’t just repeat the inspection title.
+    All Redis message types must be serializable to be transmitted over the Redis pub/sub channel.
+    Without the <code>@Serializable</code> annotation from kotlinx.serialization, the message
+    cannot be encoded/decoded and will cause runtime errors.
 </p>
 <p>
-    See https://plugins.jetbrains.com/docs/intellij/inspections.html#descriptions for more information.
-</p>
-<p>
-    Embed code snippets:
+    Example of problematic code:
 </p>
 <pre><code>
-// automatically highlighted according to inspection registration 'language' attribute
+class MyEvent(val data: String) : RedisEvent  // Missing @Serializable
+</code></pre>
+<p>
+    Correct code:
+</p>
+<pre><code>
+@Serializable
+class MyEvent(val data: String) : RedisEvent
 </code></pre>
 <!-- tooltip end -->
-<p>Text after this comment will only be shown in the settings of the inspection.</p>
-
-<p>To open related settings directly from the description, add a link with `settings://$` optionally followed by `?$` to
-    pre-select a UI element.</p>
+<p>
+    The quick-fix adds the <code>@Serializable</code> annotation from kotlinx.serialization.
+</p>
 </body>
 </html>

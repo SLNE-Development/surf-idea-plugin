@@ -1,27 +1,36 @@
 <html>
 <body>
-Write your description here.
-Start the description with a verb in 3rd person singular, like reports, detects, highlights.
-In the first sentence, briefly explain what exactly the inspection helps you detect.
-Make sure the sentence is not very long and complicated.
+Reports <code>@OnRedisEvent</code> handler methods with incorrect parameter signatures.
 <p>
-    The first sentence must be in a dedicated paragraph separated from the rest of the text. This will make the
-    description easier to read.
-    Make sure the description doesn’t just repeat the inspection title.
+    An <code>@OnRedisEvent</code> handler must have exactly one parameter, and that parameter
+    must be a subtype of <code>RedisEvent</code>. The framework uses this parameter type to
+    determine which events to route to the handler.
 </p>
 <p>
-    See https://plugins.jetbrains.com/docs/intellij/inspections.html#descriptions for more information.
-</p>
-<p>
-    Embed code snippets:
+    Example of problematic code:
 </p>
 <pre><code>
-// automatically highlighted according to inspection registration 'language' attribute
+@OnRedisEvent
+fun onEvent() { }  // Missing parameter
+
+@OnRedisEvent
+fun onEvent(event: MyEvent, extra: String) { }  // Too many parameters
+
+@OnRedisEvent
+fun onEvent(data: String) { }  // Parameter is not a RedisEvent subtype
+</code></pre>
+<p>
+    Correct code:
+</p>
+<pre><code>
+@OnRedisEvent
+fun onEvent(event: MyEvent) {
+    // handle event
+}
 </code></pre>
 <!-- tooltip end -->
-<p>Text after this comment will only be shown in the settings of the inspection.</p>
-
-<p>To open related settings directly from the description, add a link with `settings://$` optionally followed by `?$` to
-    pre-select a UI element.</p>
+<p>
+    Ensure the handler has exactly one parameter of a type that extends <code>RedisEvent</code>.
+</p>
 </body>
 </html>
