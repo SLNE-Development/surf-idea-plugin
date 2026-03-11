@@ -15,7 +15,7 @@ Reports <code>@HandleRedisRequest</code> handler methods with incorrect paramete
 fun handle() { }  // Missing parameter
 
 @HandleRedisRequest
-fun handle(context: RequestContext, extra: String) { }  // Too many parameters
+fun handle(context: RequestContext&lt;MyRequest&gt;, extra: String) { }  // Too many parameters
 
 @HandleRedisRequest
 fun handle(request: MyRequest) { }  // Wrong parameter type
