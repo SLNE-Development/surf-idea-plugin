@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
 import dev.slne.surf.idea.surfideaplugin.surfapi.SurfApiClassNames
-import dev.slne.surf.idea.surfideaplugin.surfapi.util.InternalApiUtils
+import dev.slne.surf.idea.surfideaplugin.surfapi.service.internalApiService
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.idea.base.util.module
 import org.jetbrains.kotlin.psi.KtDeclaration
@@ -64,7 +64,7 @@ class InternalApiCompletionContributor : CompletionContributor() {
             return try {
                 analyze(ktDeclaration) {
                     val symbol = ktDeclaration.symbol
-                    InternalApiUtils.isHiddenInternalApi(symbol, position)
+                    internalApiService().isHiddenInternalApi(symbol, position)
                 }
             } catch (_: Exception) {
                 false

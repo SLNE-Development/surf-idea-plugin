@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.util.ui.JBDimension
 import dev.slne.surf.idea.surfideaplugin.common.util.LabeledRow
-import dev.slne.surf.idea.surfideaplugin.surfapi.paper.util.EventListenerPriorities
+import dev.slne.surf.idea.surfideaplugin.surfapi.paper.util.PaperEventListenerPriorities
 import org.jetbrains.jewel.bridge.JewelComposePanel
 import org.jetbrains.jewel.foundation.enableNewSwingCompositing
 import org.jetbrains.jewel.foundation.theme.JewelTheme
@@ -30,11 +30,11 @@ class PaperEventListenerDialog(
 ) : DialogWrapper(project) {
 
     private val handlerNameState = TextFieldState(defaultHandlerName)
-    private var selectedPriorityIndex by mutableIntStateOf(EventListenerPriorities.NORMAL.ordinal)
+    private var selectedPriorityIndex by mutableIntStateOf(PaperEventListenerPriorities.NORMAL.ordinal)
     private var ignoreCancelledState by mutableStateOf(false)
 
     val handlerName: String get() = handlerNameState.text.toString()
-    val priority: EventListenerPriorities? get() = EventListenerPriorities.entries.getOrNull(selectedPriorityIndex)
+    val priority: PaperEventListenerPriorities? get() = PaperEventListenerPriorities.entries.getOrNull(selectedPriorityIndex)
     val ignoreCancelled: Boolean get() = ignoreCancelledState
 
     init {
@@ -71,7 +71,7 @@ class PaperEventListenerDialog(
 
             LabeledRow("Priority:") {
                 ListComboBox(
-                    items = EventListenerPriorities.names,
+                    items = PaperEventListenerPriorities.names,
                     modifier = Modifier.fillMaxWidth(),
                     selectedIndex = selectedPriorityIndex,
                     onSelectedItemChange = { selectedPriorityIndex = it },

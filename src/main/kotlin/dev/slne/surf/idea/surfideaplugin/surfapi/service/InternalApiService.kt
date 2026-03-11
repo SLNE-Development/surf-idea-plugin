@@ -1,5 +1,7 @@
-package dev.slne.surf.idea.surfideaplugin.surfapi.util
+package dev.slne.surf.idea.surfideaplugin.surfapi.service
 
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.components.service
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.PsiElement
 import dev.slne.surf.idea.surfideaplugin.surfapi.SurfApiClassNames
@@ -9,14 +11,18 @@ import org.jetbrains.kotlin.analysis.api.components.containingDeclaration
 import org.jetbrains.kotlin.analysis.api.symbols.KaDeclarationSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.findClass
-import org.jetbrains.kotlin.analysis.api.symbols.markers.KaAnnotatedSymbol
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 
-object InternalApiUtils {
-    private val INTERNAL_API_MARKER_CLASS_ID =
-        ClassId.topLevel(FqName(SurfApiClassNames.INTERNAL_API_MARKER_ANNOTATION))
+@Service
+class InternalApiService {
 
+    companion object {
+        private val INTERNAL_API_MARKER_CLASS_ID =
+            ClassId.topLevel(FqName(SurfApiClassNames.INTERNAL_API_MARKER_ANNOTATION))
+
+        fun getInstance(): InternalApiService = service()
+    }
 
     context(_: KaSession)
     fun isHiddenInternalApi(symbol: KaDeclarationSymbol, useSiteElement: PsiElement): Boolean {
@@ -65,3 +71,5 @@ object InternalApiUtils {
         return false
     }
 }
+
+fun internalApiService(): InternalApiService = InternalApiService.getInstance()

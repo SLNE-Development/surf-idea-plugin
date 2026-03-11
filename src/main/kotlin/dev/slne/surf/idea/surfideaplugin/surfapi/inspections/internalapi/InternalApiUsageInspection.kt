@@ -7,12 +7,11 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.util.TextRange
 import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
 import dev.slne.surf.idea.surfideaplugin.surfapi.SurfApiClassNames
-import dev.slne.surf.idea.surfideaplugin.surfapi.util.InternalApiUtils
+import dev.slne.surf.idea.surfideaplugin.surfapi.service.internalApiService
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaDeclarationSymbol
 import org.jetbrains.kotlin.idea.base.util.module
 import org.jetbrains.kotlin.idea.codeinsight.api.applicable.inspections.KotlinApplicableInspectionBase
-import org.jetbrains.kotlin.idea.codeinsight.api.applicators.ApplicabilityRange
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtVisitor
@@ -49,7 +48,7 @@ class InternalApiUsageInspection :
 
         val hasHidden = symbols.any { symbol ->
             val declSymbol = symbol as? KaDeclarationSymbol ?: return@any false
-            InternalApiUtils.isHiddenInternalApi(declSymbol, element)
+            internalApiService().isHiddenInternalApi(declSymbol, element)
         }
 
         if (!hasHidden) return null

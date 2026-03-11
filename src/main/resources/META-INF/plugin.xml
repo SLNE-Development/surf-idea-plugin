@@ -189,6 +189,12 @@
             <add-to-group group-id="GenerateGroup" anchor="last"/>
         </action>
 
+        <action id="dev.slne.surf.idea.surfideaplugin.surfapi.velocity.generation.GenerateVelocityEventListenerCodeInsightAction"
+                class="dev.slne.surf.idea.surfideaplugin.surfapi.velocity.generation.GenerateVelocityEventListenerCodeInsightAction"
+                text="Generate Velocity Event Listener">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+
         <!-- Surf-Redis -->
         <action id="dev.slne.surf.idea.surfideaplugin.redis.generation.GenerateRedisEventHandlerCodeInsightAction"
                 class="dev.slne.surf.idea.surfideaplugin.redis.generation.GenerateRedisEventHandlerCodeInsightAction"

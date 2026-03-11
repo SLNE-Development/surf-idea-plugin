@@ -7,10 +7,9 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import dev.slne.surf.idea.surfideaplugin.common.service.inheritanceService
 import dev.slne.surf.idea.surfideaplugin.surfapi.paper.PaperClassNames
-import dev.slne.surf.idea.surfideaplugin.surfapi.paper.util.EventListenerPriorities
+import dev.slne.surf.idea.surfideaplugin.surfapi.paper.util.PaperEventListenerPriorities
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.jetbrains.kotlin.analysis.api.lifetime.KaInaccessibleLifetimeOwnerAccessException
 import org.jetbrains.kotlin.idea.core.insertMembersAfterAndReformat
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
@@ -35,11 +34,11 @@ class PaperGenerationService(
         targetClass: KtClassOrObject,
         handlerName: String,
         eventClassName: String,
-        priority: EventListenerPriorities?,
+        priority: PaperEventListenerPriorities?,
         ignoreCancelled: Boolean
     ) {
         val annotationParams = buildList {
-            if (priority != EventListenerPriorities.NORMAL && priority != null) {
+            if (priority != PaperEventListenerPriorities.NORMAL && priority != null) {
                 add("priority = ${PaperClassNames.EVENT_PRIORITY_CLASS}.$priority")
             }
             if (ignoreCancelled) {

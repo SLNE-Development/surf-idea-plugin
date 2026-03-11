@@ -1,6 +1,6 @@
 package dev.slne.surf.idea.surfideaplugin.surfapi.paper.util
 
-enum class EventListenerPriorities {
+enum class PaperEventListenerPriorities {
     LOWEST,
     LOW,
     NORMAL,
