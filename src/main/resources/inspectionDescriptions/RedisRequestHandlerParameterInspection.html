@@ -1,9 +1,40 @@
 <html>
 <body>
-Write your description here.
-Start the description with a verb in 3rd person singular, like reports, detects, highlights.
-In the first sentence, briefly explain what exactly the inspection helps you detect.
-Make sure the sentence is not very long and complicated.
+Reports <code>@HandleRedisRequest</code> handler methods whose parameter list does not
+match the required signature.
+<p>
+    A <code>@HandleRedisRequest</code> handler must declare exactly one parameter of
+    type <code>RequestContext&lt;T&gt;</code>, where <code>T</code> is a subtype of
+    <code>RedisRequest</code>. The <code>RequestContext</code> provides access to the
+    incoming request object and the <code>respond(...)</code> method used to send a
+    reply.
+</p>
+<p>Examples of invalid signatures:</p>
+<pre><code>
+@HandleRedisRequest
+fun handle() { }                                    // ERROR: no parameters
+
+@HandleRedisRequest
+fun handle(request: GetUserRequest) { }             // ERROR: not RequestContext
+
+@HandleRedisRequest
+fun handle(ctx: RequestContext&lt;GetUserRequest&gt;,
+           extra: String) { }                       // ERROR: too many parameters
+</code></pre>
+<p>Correct signature:</p>
+<pre><code>
+@HandleRedisRequest
+fun handle(context: RequestContext&lt;GetUserRequest&gt;) {
+    context.respond(GetUserResponse("John"))
+}
+</code></pre>
+<!-- tooltip end -->
+<p>
+    Fix the handler to accept exactly one
+    <code>RequestContext&lt;T : RedisRequest&gt;</code> parameter.
+</p>
+</body>
+</html>
 <p>
     The first sentence must be in a dedicated paragraph separated from the rest of the text. This will make the
     description easier to read.

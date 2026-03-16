@@ -1,6 +1,35 @@
 <html>
 <body>
-Write your description here.
+Reports Redis handler methods annotated with <code>@OnRedisEvent</code> or
+<code>@HandleRedisRequest</code> that are declared as <code>suspend</code> functions.
+<p>
+    Surf-Redis invokes handler methods via <code>MethodHandles</code> and does not
+    support Kotlin coroutine suspension. Declaring a handler as <code>suspend</code>
+    will cause a runtime error because the framework cannot provide a
+    <code>Continuation</code>. If you need asynchronous work, launch a coroutine
+    inside the handler using your own <code>CoroutineScope</code>.
+</p>
+<p>Example:</p>
+<pre><code>
+// ERROR: handler must not be suspend
+@OnRedisEvent
+suspend fun onUserCreated(event: UserCreatedEvent) {
+    delay(100)
+}
+</code></pre>
+<pre><code>
+// Correct
+@OnRedisEvent
+fun onUserCreated(event: UserCreatedEvent) {
+    scope.launch { delay(100) }
+}
+</code></pre>
+<!-- tooltip end -->
+<p>
+    The quick-fix removes the <code>suspend</code> modifier from the function.
+</p>
+</body>
+</html>
 Start the description with a verb in 3rd person singular, like reports, detects, highlights.
 In the first sentence, briefly explain what exactly the inspection helps you detect.
 Make sure the sentence is not very long and complicated.

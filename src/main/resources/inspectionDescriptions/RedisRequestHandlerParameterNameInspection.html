@@ -1,10 +1,33 @@
 <html>
 <body>
-Write your description here.
-Start the description with a verb in 3rd person singular, like reports, detects, highlights.
-In the first sentence, briefly explain what exactly the inspection helps you detect.
-Make sure the sentence is not very long and complicated.
+Reports <code>@HandleRedisRequest</code> handler methods where the
+<code>RequestContext</code> parameter is not named <code>context</code>.
 <p>
+    By convention, the <code>RequestContext</code> parameter in a request handler
+    should be named <code>context</code>. Consistent naming improves readability and
+    makes it easier to recognise handler patterns across the codebase.
+</p>
+<p>Example:</p>
+<pre><code>
+// WARNING: parameter should be named 'context'
+@HandleRedisRequest
+fun handle(ctx: RequestContext&lt;GetUserRequest&gt;) {
+    ctx.respond(GetUserResponse("John"))
+}
+</code></pre>
+<pre><code>
+// Correct
+@HandleRedisRequest
+fun handle(context: RequestContext&lt;GetUserRequest&gt;) {
+    context.respond(GetUserResponse("John"))
+}
+</code></pre>
+<!-- tooltip end -->
+<p>
+    The quick-fix renames the parameter to <code>context</code>.
+</p>
+</body>
+</html>
     The first sentence must be in a dedicated paragraph separated from the rest of the text. This will make the
     description easier to read.
     Make sure the description doesn’t just repeat the inspection title.

@@ -1,13 +1,36 @@
 <html>
 <body>
-Write your description here.
-Start the description with a verb in 3rd person singular, like reports, detects, highlights.
-In the first sentence, briefly explain what exactly the inspection helps you detect.
-Make sure the sentence is not very long and complicated.
+Reports Redis handler methods annotated with <code>@OnRedisEvent</code> or
+<code>@HandleRedisRequest</code> that use modifiers incompatible with
+<code>MethodHandles.Lookup</code>.
 <p>
-    The first sentence must be in a dedicated paragraph separated from the rest of the text. This will make the
-    description easier to read.
-    Make sure the description doesn’t just repeat the inspection title.
+    Surf-Redis discovers and invokes handler methods at runtime via Java
+    <code>MethodHandles.Lookup</code>. The modifiers <code>abstract</code>,
+    <code>open</code>, <code>override</code>, and <code>inline</code> interfere with
+    this mechanism and must not be used on handler functions.
+</p>
+<p>Example:</p>
+<pre><code>
+// WARNING: 'open' is not allowed on a Redis handler
+@OnRedisEvent
+open fun onEvent(event: UserCreatedEvent) {
+    process(event)
+}
+</code></pre>
+<pre><code>
+// Correct
+@OnRedisEvent
+fun onEvent(event: UserCreatedEvent) {
+    process(event)
+}
+</code></pre>
+<!-- tooltip end -->
+<p>
+    The quick-fix removes the offending modifier from the function declaration.
+</p>
+</body>
+TEST4_MARKER
+BLOCK2’t just repeat the inspection title.
 </p>
 <p>
     See https://plugins.jetbrains.com/docs/intellij/inspections.html#descriptions for more information.

@@ -4,8 +4,40 @@
     <vendor url="https://github.com/SLNE-Development/">SLNE-Development</vendor>
 
     <description><![CDATA[
-        Provides inspections, code generation, line markers, and framework detection
-        for surf-api (Paper/Velocity/Core), surf-redis, and surf-database-r2dbc.
+        <p>
+            The <b>Surf Framework</b> plugin adds first-class IntelliJ IDEA support for the
+            <a href="https://github.com/SLNE-Development/">Surf ecosystem</a>, covering
+            <b>surf-api</b>, <b>surf-redis</b>, and <b>surf-database-r2dbc</b>.
+        </p>
+
+        <h3>Features</h3>
+        <ul>
+            <li><b>Inspections &amp; quick-fixes</b> — Validates handler signatures, annotations,
+                serialization requirements, naming conventions, and more with actionable fixes.</li>
+            <li><b>Code generation</b> — Generate Paper/Velocity event listeners and Redis
+                event/request handlers from the <em>Generate</em> menu.</li>
+            <li><b>Line markers</b> — Gutter icons for Redis event handlers, event classes, and
+                publish calls for quick navigation between related symbols.</li>
+            <li><b>Postfix templates</b> — Surf-Redis postfix completions for common patterns.</li>
+            <li><b>Inlay hints</b> — Displays resolved Redis key prefixes for sync structure
+                declarations.</li>
+            <li><b>Framework detection</b> — Automatically detects Surf libraries on the classpath
+                and activates relevant features via facets.</li>
+            <li><b>Internal API gating</b> — Flags usage of <code>@InternalAPIMarker</code>-annotated
+                symbols from library dependencies as errors.</li>
+            <li><b>Tool window</b> — A dedicated Surf Redis tool window for an overview of
+                registered handlers and events.</li>
+        </ul>
+
+        <h3>Supported Frameworks</h3>
+        <ul>
+            <li><b>surf-api</b> — Paper, Velocity, and Core platform support.</li>
+            <li><b>surf-redis</b> — Annotation-driven Redis event and request/response handler
+                pattern (<code>@OnRedisEvent</code>, <code>@HandleRedisRequest</code>).</li>
+            <li><b>surf-database-r2dbc</b> — Transaction context inspections.</li>
+        </ul>
+
+        <p><em>Requires Kotlin K2 mode.</em></p>
     ]]></description>
 
     <depends>com.intellij.modules.compose</depends>

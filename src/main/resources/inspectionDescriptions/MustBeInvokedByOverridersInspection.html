@@ -1,19 +1,34 @@
 <html>
 <body>
-Write your description here.
-Start the description with a verb in 3rd person singular, like reports, detects, highlights.
-In the first sentence, briefly explain what exactly the inspection helps you detect.
-Make sure the sentence is not very long and complicated.
+Reports overriding methods that do not call the corresponding <code>super</code> method
+when the super method is annotated with <code>@MustBeInvokedByOverriders</code> or
+<code>@OverridingMethodsMustInvokeSuper</code>.
 <p>
-    The first sentence must be in a dedicated paragraph separated from the rest of the text. This will make the
-    description easier to read.
+    Methods annotated with these annotations establish a contract: every override must
+    invoke the super implementation to preserve the base class behavior.
     Make sure the description doesn’t just repeat the inspection title.
 </p>
 <p>
-    See https://plugins.jetbrains.com/docs/intellij/inspections.html#descriptions for more information.
+<p>Example of a problematic override:</p>
+<pre><code>
+class Child : Parent() {
+    override fun setup() {       // WARNING: missing super.setup()
+        println("Child setup")
+    }
+}
+</code></pre>
+<p>Correct usage:</p>
+<pre><code>
+class Child : Parent() {
+    override fun setup() {
+        super.setup()            // required by @MustBeInvokedByOverriders
+        println("Child setup")
+    }
+}
+</code></pre>
 </p>
 <p>
-    Embed code snippets:
+<!-- tooltip end -->
 </p>
 <pre><code>
 // automatically highlighted according to inspection registration 'language' attribute
