@@ -47,9 +47,6 @@
     <resource-bundle>messages.SurfBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="MyToolWindow" factoryClass="dev.slne.surf.idea.surfideaplugin.MyToolWindowFactory"
-                    icon="AllIcons.Toolwindows.ToolWindowPalette"/>
-
         <!-- Surf-API -->
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFacetType"/>
         <!--        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFrameworkDetector"/>-->
