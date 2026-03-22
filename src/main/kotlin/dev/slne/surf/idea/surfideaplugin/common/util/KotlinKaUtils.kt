@@ -7,12 +7,26 @@ import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.symbol
 import org.jetbrains.kotlin.analysis.api.types.KaClassType
 import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 
 context(_: KaSession)
-fun KtNamedFunction.hasAnnotation(annotation: ClassId): Boolean {
-    return symbol.annotations.any { it.classId == annotation }
+fun KtNamedFunction.hasAnnotation(annotationId: ClassId): Boolean {
+    return symbol.annotations.any { it.classId == annotationId }
+}
+
+context(_: KaSession)
+fun KtNamedFunction.hasAnyAnnotation(annotationIds: Iterable<ClassId>): Boolean {
+    val ids = annotationIds.toSet()
+    if (ids.isEmpty()) return false
+
+    return symbol.annotations.any { it.classId in ids }
+}
+
+context(_: KaSession)
+fun KtClass.hasAnnotation(annotationId: ClassId): Boolean {
+    return symbol.annotations.any { it.classId == annotationId }
 }
 
 context(_: KaSession)

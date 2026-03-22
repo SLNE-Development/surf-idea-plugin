@@ -6,11 +6,12 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.util.TextRange
 import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
+import dev.slne.surf.idea.surfideaplugin.common.util.hasAnnotation
+import dev.slne.surf.idea.surfideaplugin.redis.RedisFacetAwareKotlinApplicableInspectionBase
 import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisClassNames
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
 import org.jetbrains.kotlin.idea.base.psi.KotlinPsiHeuristics
-import org.jetbrains.kotlin.idea.codeinsight.api.applicable.inspections.KotlinApplicableInspectionBase
 import org.jetbrains.kotlin.idea.codeinsight.api.applicators.ApplicabilityRange
 import org.jetbrains.kotlin.idea.codeinsights.impl.base.asQuickFix
 import org.jetbrains.kotlin.idea.quickfix.AddAnnotationFix
@@ -21,15 +22,15 @@ import org.jetbrains.kotlin.psi.KtVisitor
 import org.jetbrains.kotlin.psi.classVisitor
 
 
-class RedisEventMissingSerializableInspection : KotlinApplicableInspectionBase<KtClass, Unit>() {
+class RedisEventMissingSerializableInspection : RedisFacetAwareKotlinApplicableInspectionBase<KtClass, Unit>() {
     private val serializableFqName = FqName("kotlinx.serialization.Serializable")
     private val serializableClassId = ClassId.topLevel(serializableFqName)
 
     private val redisBaseClassIds = setOf(
-        SurfRedisClassNames.REDIS_EVENT_CLASS,
-        SurfRedisClassNames.REDIS_REQUEST_CLASS,
-        SurfRedisClassNames.REDIS_RESPONSE_CLASS
-    ).map { ClassId.topLevel(FqName(it)) }
+        SurfRedisClassNames.REDIS_EVENT_CLASS_ID,
+        SurfRedisClassNames.REDIS_REQUEST_CLASS_ID,
+        SurfRedisClassNames.REDIS_RESPONSE_CLASS_ID
+    )
 
     override fun buildVisitor(
         holder: ProblemsHolder,
@@ -50,18 +51,18 @@ class RedisEventMissingSerializableInspection : KotlinApplicableInspectionBase<K
 
     override fun KaSession.prepareContext(element: KtClass): Unit? {
         val classSymbol = element.symbol as? KaClassSymbol ?: return null
-        val hasSerializable = classSymbol.annotations.any { annotation ->
-            annotation.classId == serializableClassId
-        }
 
+        val hasSerializable = element.hasAnnotation(serializableClassId)
         if (hasSerializable) return null
 
-        val isRedisSubtype = redisBaseClassIds.any { baseClassId ->
-            val baseSymbol = findClass(baseClassId) ?: return@any false
-            classSymbol.isSubClassOf(baseSymbol)
+        for (classId in redisBaseClassIds) {
+            val baseSymbol = findClass(classId) ?: continue
+            if (classSymbol.isSubClassOf(baseSymbol)) {
+                return Unit
+            }
         }
 
-        return if (isRedisSubtype) Unit else null
+        return null
     }
 
     override fun InspectionManager.createProblemDescriptor(

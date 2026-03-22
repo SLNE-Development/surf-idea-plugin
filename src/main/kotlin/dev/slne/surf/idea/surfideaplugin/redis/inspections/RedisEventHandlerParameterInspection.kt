@@ -5,31 +5,24 @@ import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.util.TextRange
-import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
+import dev.slne.surf.idea.surfideaplugin.redis.RedisFacetAwareKotlinApplicableInspectionBase
 import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisClassNames
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.idea.base.psi.KotlinPsiHeuristics
-import org.jetbrains.kotlin.idea.codeinsight.api.applicable.inspections.KotlinApplicableInspectionBase
 import org.jetbrains.kotlin.idea.codeinsight.api.applicators.ApplicabilityRange
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtVisitor
 import org.jetbrains.kotlin.psi.namedFunctionVisitor
 
 class RedisEventHandlerParameterInspection :
-    KotlinApplicableInspectionBase<KtNamedFunction, RedisEventHandlerParameterInspection.Context>() {
+    RedisFacetAwareKotlinApplicableInspectionBase<KtNamedFunction, RedisEventHandlerParameterInspection.Context>() {
     sealed interface Context {
         data object WrongParameterCount : Context
         data object WrongParameterType : Context
     }
 
-    private val redisEventClassId = ClassId.topLevel(FqName(SurfRedisClassNames.REDIS_EVENT_CLASS))
-    private val onRedisEventAnnotation = FqName(SurfRedisClassNames.ON_REDIS_EVENT_ANNOTATION)
-
     override fun isApplicableByPsi(element: KtNamedFunction): Boolean {
-        if (!SurfLibraryDetector.hasSurfRedis(element)) return false
-        return KotlinPsiHeuristics.hasAnnotation(element, onRedisEventAnnotation)
+        return KotlinPsiHeuristics.hasAnnotation(element, SurfRedisClassNames.ON_REDIS_EVENT_ANNOTATION_FQN)
     }
 
     override fun KaSession.prepareContext(element: KtNamedFunction): Context? {
@@ -40,7 +33,7 @@ class RedisEventHandlerParameterInspection :
         }
 
         val eventParam = valueParameters.first()
-        val isSubtype = eventParam.symbol.returnType.isSubtypeOf(redisEventClassId)
+        val isSubtype = eventParam.symbol.returnType.isSubtypeOf(SurfRedisClassNames.REDIS_EVENT_CLASS_ID)
 
         return if (!isSubtype) Context.WrongParameterType else null
     }

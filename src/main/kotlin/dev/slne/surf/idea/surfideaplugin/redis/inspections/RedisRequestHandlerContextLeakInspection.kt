@@ -3,43 +3,35 @@ package dev.slne.surf.idea.surfideaplugin.redis.inspections
 import com.intellij.codeInspection.IntentionWrapper
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElementVisitor
-import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
 import dev.slne.surf.idea.surfideaplugin.common.util.findValueParameter
 import dev.slne.surf.idea.surfideaplugin.common.util.hasAnnotation
+import dev.slne.surf.idea.surfideaplugin.redis.RedisFacetAwareAbstractKotlinInspection
 import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisClassNames
 import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisConstants
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.idea.base.psi.KotlinPsiHeuristics
-import org.jetbrains.kotlin.idea.codeinsight.api.classic.inspections.AbstractKotlinInspection
 import org.jetbrains.kotlin.idea.codeinsights.impl.base.asQuickFix
 import org.jetbrains.kotlin.idea.quickfix.RemoveArgumentFix
 import org.jetbrains.kotlin.idea.quickfix.RemovePsiElementSimpleFix
 import org.jetbrains.kotlin.idea.quickfix.RemoveRedundantReturnFix
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
 
-class RedisRequestHandlerContextLeakInspection : AbstractKotlinInspection() {
-
-    private val handleRedisRequestAnnotation = FqName(SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION)
-    private val handleRedisRequestAnnotationClassId = ClassId.topLevel(handleRedisRequestAnnotation)
-    private val requestContextClassId = ClassId.topLevel(FqName(SurfRedisClassNames.REQUEST_CONTEXT_CLASS))
+class RedisRequestHandlerContextLeakInspection : RedisFacetAwareAbstractKotlinInspection() {
 
     override fun buildVisitor(
         holder: ProblemsHolder,
         isOnTheFly: Boolean
-    ): PsiElementVisitor = namedFunctionVisitor { element ->
-        if (!SurfLibraryDetector.hasSurfRedis(element)) return@namedFunctionVisitor
-        if (!KotlinPsiHeuristics.hasAnnotation(element, handleRedisRequestAnnotation)) return@namedFunctionVisitor
-        if (!element.hasBlockBody()) return@namedFunctionVisitor
+    ): PsiElementVisitor = namedFunctionVisitor(fun(element) {
+        if (!KotlinPsiHeuristics.hasAnnotation(element, SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_FQN)) return
+        if (!element.hasBlockBody()) return
 
         val contextName = analyze(element) {
-            if (!element.hasAnnotation(handleRedisRequestAnnotationClassId)) return@analyze null
-            element.findValueParameter(requestContextClassId)?.name
-        } ?: return@namedFunctionVisitor
+            if (!element.hasAnnotation(SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_ID)) return@analyze null
+            element.findValueParameter(SurfRedisClassNames.REQUEST_CONTEXT_CLASS_ID)?.name
+        } ?: return
 
         checkForLeaks(element, contextName, holder)
-    }
+    })
 
     private fun checkForLeaks(function: KtNamedFunction, contextName: String, holder: ProblemsHolder) {
         function.bodyExpression?.accept(object : KtTreeVisitorVoid() {

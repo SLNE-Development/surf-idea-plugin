@@ -6,28 +6,23 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.util.TextRange
 import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
+import dev.slne.surf.idea.surfideaplugin.common.util.hasAnnotation
+import dev.slne.surf.idea.surfideaplugin.redis.RedisFacetAwareKotlinApplicableInspectionBase
 import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisClassNames
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.types.KaClassType
 import org.jetbrains.kotlin.idea.base.psi.KotlinPsiHeuristics
-import org.jetbrains.kotlin.idea.codeinsight.api.applicable.inspections.KotlinApplicableInspectionBase
 import org.jetbrains.kotlin.idea.codeinsight.api.applicators.ApplicabilityRange
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtVisitor
 import org.jetbrains.kotlin.psi.namedFunctionVisitor
 
 class RedisRequestHandlerParameterInspection :
-    KotlinApplicableInspectionBase<KtNamedFunction, RedisRequestHandlerParameterInspection.Context>() {
+    RedisFacetAwareKotlinApplicableInspectionBase<KtNamedFunction, RedisRequestHandlerParameterInspection.Context>() {
     sealed interface Context {
         data object WrongParameterCount : Context
         data object WrongParameterType : Context
     }
-
-    private val requestContextClassId = ClassId.topLevel(FqName(SurfRedisClassNames.REQUEST_CONTEXT_CLASS))
-    private val handleRedisRequestAnnotation = FqName(SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION)
-    private val handleRedisRequestAnnotationClassId = ClassId.topLevel(handleRedisRequestAnnotation)
 
     override fun buildVisitor(
         holder: ProblemsHolder,
@@ -36,29 +31,21 @@ class RedisRequestHandlerParameterInspection :
         visitTargetElement(element, holder, isOnTheFly)
     }
 
-    override fun isApplicableByPsi(element: KtNamedFunction): Boolean {
-        if (!SurfLibraryDetector.hasSurfRedis(element)) return false
-        return KotlinPsiHeuristics.hasAnnotation(element, handleRedisRequestAnnotation)
-    }
-
-    override fun getApplicableRanges(element: KtNamedFunction): List<TextRange> {
-        return ApplicabilityRange.single(element) { it.valueParameterList }
-    }
-
     override fun KaSession.prepareContext(element: KtNamedFunction): Context? {
-        val hasAnnotation = element.symbol.annotations.any { annotation ->
-            annotation.classId == handleRedisRequestAnnotationClassId
-        }
-
+        val hasAnnotation = element.hasAnnotation(SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_ID)
         if (!hasAnnotation) return null
 
         val valueParameters = element.valueParameters
         if (valueParameters.size != 1) return Context.WrongParameterCount
 
         val paramType = valueParameters.first().symbol.returnType as? KaClassType ?: return Context.WrongParameterType
-        if (paramType.classId != requestContextClassId) return Context.WrongParameterType
+        if (paramType.classId != SurfRedisClassNames.REQUEST_CONTEXT_CLASS_ID) return Context.WrongParameterType
 
         return null
+    }
+
+    override fun getApplicableRanges(element: KtNamedFunction): List<TextRange> {
+        return ApplicabilityRange.single(element) { it.valueParameterList }
     }
 
     override fun InspectionManager.createProblemDescriptor(

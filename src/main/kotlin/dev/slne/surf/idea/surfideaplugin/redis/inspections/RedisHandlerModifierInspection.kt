@@ -5,25 +5,23 @@ import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.util.TextRange
-import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
+import dev.slne.surf.idea.surfideaplugin.common.quickfix.ChangeModifierFix
+import dev.slne.surf.idea.surfideaplugin.common.util.hasAnyAnnotation
+import dev.slne.surf.idea.surfideaplugin.redis.RedisFacetAwareKotlinApplicableInspectionBase
 import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisClassNames
 import org.jetbrains.kotlin.analysis.api.KaSession
-import org.jetbrains.kotlin.idea.base.psi.KotlinPsiHeuristics
-import org.jetbrains.kotlin.idea.codeinsight.api.applicable.inspections.KotlinApplicableInspectionBase
 import org.jetbrains.kotlin.idea.codeinsight.api.applicators.ApplicabilityRange
 import org.jetbrains.kotlin.idea.codeinsights.impl.base.asQuickFix
-import org.jetbrains.kotlin.idea.quickfix.RemoveModifierFixBase
 import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtVisitor
 import org.jetbrains.kotlin.psi.namedFunctionVisitor
 
-class RedisHandlerModifierInspection : KotlinApplicableInspectionBase<KtNamedFunction, Unit>() {
+class RedisHandlerModifierInspection : RedisFacetAwareKotlinApplicableInspectionBase<KtNamedFunction, Unit>() {
     private val handlerAnnotations = setOf(
-        SurfRedisClassNames.ON_REDIS_EVENT_ANNOTATION,
-        SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION
-    ).map { FqName(it) }
+        SurfRedisClassNames.ON_REDIS_EVENT_ANNOTATION_ID,
+        SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_ID
+    )
 
     private val forbiddenModifier = setOf(
         KtTokens.ABSTRACT_KEYWORD,
@@ -39,19 +37,20 @@ class RedisHandlerModifierInspection : KotlinApplicableInspectionBase<KtNamedFun
         visitTargetElement(element, holder, isOnTheFly)
     }
 
-    override fun isApplicableByPsi(element: KtNamedFunction): Boolean {
-        if (!SurfLibraryDetector.hasSurfRedis(element)) return false
-        if (handlerAnnotations.none { KotlinPsiHeuristics.hasAnnotation(element, it) }) return false
-        return forbiddenModifier.any { element.hasModifier(it) }
+    override fun KaSession.prepareContext(element: KtNamedFunction): Unit? {
+        val isHandler = element.hasAnyAnnotation(handlerAnnotations)
+        if (!isHandler) return null
+
+        val hasForbiddenModifier = forbiddenModifier.any { element.hasModifier(it) }
+        if (!hasForbiddenModifier) return null
+
+        return Unit
     }
 
     override fun getApplicableRanges(element: KtNamedFunction): List<TextRange> {
         return ApplicabilityRange.multiple(element) {
             forbiddenModifier.mapNotNull { element.modifierList?.getModifier(it) }
         }
-    }
-
-    override fun KaSession.prepareContext(element: KtNamedFunction) {
     }
 
     override fun InspectionManager.createProblemDescriptor(
@@ -64,15 +63,11 @@ class RedisHandlerModifierInspection : KotlinApplicableInspectionBase<KtNamedFun
             element,
             rangeInElement,
             "Redis handler '${element.name}' must be accessible for MethodHandles.Lookup. " +
-                    "Remove modifiers like abstract/open/override/inline.",
+                    "Remove modifiers like ${forbiddenModifier.joinToString("/", transform = { it.value })}.",
             ProblemHighlightType.WARNING,
             onTheFly,
             *forbiddenModifier.map {
-                RemoveModifierFixBase(
-                    element,
-                    it,
-                    false
-                ).asQuickFix()
+                ChangeModifierFix.removeModifier(element, it).asQuickFix()
             }.toTypedArray()
         )
     }
