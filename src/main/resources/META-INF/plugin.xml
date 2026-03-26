@@ -87,7 +87,7 @@
 
         <!-- Surf-Redis -->
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFacetType"/>
-        <!--        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFrameworkDetector"/>-->
+        <!--        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRabbitFrameworkDetector"/>-->
 
         <postStartupActivity implementation="dev.slne.surf.idea.surfideaplugin.common.facet.SurfFacetSetupActivity"/>
 
@@ -213,6 +213,9 @@
                           anchor="right"
                           icon="AllIcons.Toolwindows.ToolWindowPalette"
         />
+
+        <!-- Surf Rabbit -->
+        <facetType implementation="dev.slne.surf.idea.surfideaplugin.rabbitmq.facet.SurfRabbitFacetType"/>
     </extensions>
 
 
@@ -243,6 +246,13 @@
         <action id="dev.slne.surf.idea.surfideaplugin.redis.generation.GenerateRedisRequestHandlerCodeInsightAction"
                 class="dev.slne.surf.idea.surfideaplugin.redis.generation.GenerateRedisRequestHandlerCodeInsightAction"
                 text="Generate Redis Request Handler">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+
+        <!-- Surf Rabbit -->
+        <action id="dev.slne.surf.idea.surfideaplugin.rabbitmq.generation.GenerateRabbitRequestHandlerCodeInsightAction"
+                class="dev.slne.surf.idea.surfideaplugin.rabbitmq.generation.GenerateRabbitRequestHandlerCodeInsightAction"
+                text="Generate RabbitMQ Request Handler">
             <add-to-group group-id="GenerateGroup" anchor="last"/>
         </action>
     </actions>

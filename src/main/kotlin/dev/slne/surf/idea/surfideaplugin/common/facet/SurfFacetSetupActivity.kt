@@ -12,6 +12,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.modules
 import com.intellij.openapi.startup.ProjectActivity
+import dev.slne.surf.idea.surfideaplugin.rabbitmq.facet.SurfRabbitFacetType
 import dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFacetType
 import dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFacetType
 
@@ -28,10 +29,14 @@ class SurfFacetSetupActivity : ProjectActivity {
                 val hasSurfRedis = smartReadAction(project) {
                     SurfLibraryDetector.hasSurfRedis(module)
                 }
+                val hasSurfRabbitMq = smartReadAction(project) {
+                    SurfLibraryDetector.hasSurfRabbitMqCommon(module)
+                }
 
                 context(module, modelsProvider) {
                     if (hasSurfApi) ensureFacet(SurfApiFacetType.ID)
                     if (hasSurfRedis) ensureFacet(SurfRedisFacetType.ID)
+                    if (hasSurfRabbitMq) ensureFacet(SurfRabbitFacetType.ID)
                 }
             }
 
