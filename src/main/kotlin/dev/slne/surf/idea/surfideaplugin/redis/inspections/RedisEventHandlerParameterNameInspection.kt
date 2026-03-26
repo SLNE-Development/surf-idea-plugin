@@ -40,7 +40,7 @@ class RedisEventHandlerParameterNameInspection : RedisFacetAwareKotlinApplicable
         if (!isRedisEventSubtype) return null
 
         val isCorrectParameterName = element.name == SurfRedisConstants.REDIS_EVENT_HANDLER_PARAMETER_NAME
-        if (!isCorrectParameterName) return null
+        if (isCorrectParameterName) return null
 
         return Unit
     }
