@@ -7,6 +7,7 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.util.TextRange
 import dev.slne.surf.idea.surfideaplugin.common.SurfCommonClassNames
 import dev.slne.surf.idea.surfideaplugin.common.util.hasAnnotation
+import dev.slne.surf.idea.surfideaplugin.common.util.isSubClassOf
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.RabbitFacetAwareKotlinApplicableInspectionBase
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.SurfRabbitClassNames
 import org.jetbrains.kotlin.analysis.api.KaSession
@@ -15,20 +16,22 @@ import org.jetbrains.kotlin.idea.codeinsights.impl.base.asQuickFix
 import org.jetbrains.kotlin.idea.quickfix.AddAnnotationFix
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtVisitor
-import org.jetbrains.kotlin.psi.classVisitor
+import org.jetbrains.kotlin.psi.classOrObjectVisitor
 
 class RabbitPacketIsNotSerializableInspection : RabbitFacetAwareKotlinApplicableInspectionBase<KtClass, Unit>() {
 
     override fun buildVisitor(
         holder: ProblemsHolder,
         isOnTheFly: Boolean
-    ): KtVisitor<*, *> = classVisitor { element ->
-        visitTargetElement(element, holder, isOnTheFly)
+    ): KtVisitor<*, *> = classOrObjectVisitor { element ->
+        if (element is KtClass) {
+            visitTargetElement(element, holder, isOnTheFly)
+        }
     }
 
     @Suppress("DEPRECATION")
     override fun KaSession.prepareContext(element: KtClass): Unit? {
-        val isRabbitPacket = element.returnType.isSubtypeOf(SurfRabbitClassNames.RABBIT_PACKET_CLASS_ID)
+        val isRabbitPacket = element.isSubClassOf(SurfRabbitClassNames.RABBIT_PACKET_CLASS_ID)
         if (!isRabbitPacket) return null
 
         val isSerializable = element.hasAnnotation(SurfCommonClassNames.KOTLINX_SERIALIZABLE_ANNOTATION_ID)

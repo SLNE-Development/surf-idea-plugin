@@ -4,10 +4,16 @@ package dev.slne.surf.idea.surfideaplugin.common.util
 
 import org.jetbrains.kotlin.analysis.api.KaContextParameterApi
 import org.jetbrains.kotlin.analysis.api.KaSession
+import org.jetbrains.kotlin.analysis.api.components.defaultType
+import org.jetbrains.kotlin.analysis.api.components.isSubClassOf
+import org.jetbrains.kotlin.analysis.api.symbols.classSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.findClass
+import org.jetbrains.kotlin.analysis.api.symbols.namedClassSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.symbol
 import org.jetbrains.kotlin.analysis.api.types.KaClassType
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 
@@ -37,4 +43,12 @@ fun KtNamedFunction.findValueParameter(annotation: ClassId): KtParameter? {
     }
 
     return null
+}
+
+context(_: KaSession)
+fun KtClassOrObject.isSubClassOf(classId: ClassId): Boolean {
+    val symbol = namedClassSymbol ?: return false
+    val superSymbol = findClass(classId) ?: return false
+
+    return symbol.isSubClassOf(superSymbol)
 }
