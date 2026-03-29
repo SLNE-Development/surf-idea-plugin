@@ -1,0 +1,28 @@
+<html>
+<body>
+<p>Detects Rabbit packet classes that are not annotated with '@Serializable'.</p>
+
+<p>
+    This inspection highlights classes that inherit from <code>RabbitPacket</code> but are missing the
+    <code>@Serializable</code> annotation. Such classes may fail during serialization and cannot be used correctly
+    in message transfer.
+</p>
+
+<p>
+    The quick-fix adds the required <code>@Serializable</code> annotation to the class.
+</p>
+
+<pre><code>
+class ExamplePacket : RabbitPacket
+</code></pre>
+
+<pre><code>
+@Serializable
+class ExamplePacket : RabbitPacket
+</code></pre>
+<!-- tooltip end -->
+<p>
+    Applies to all classes that extend <code>RabbitPacket</code>.
+</p>
+</body>
+</html>

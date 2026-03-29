@@ -1,0 +1,26 @@
+<html>
+<body>
+<p>Detects Rabbit packet declarations that use an object instead of a class.</p>
+
+<p>
+    This inspection highlights <code>object</code> declarations that inherit from <code>RabbitPacket</code>.
+    Rabbit packets must be defined as classes to ensure correct instantiation and usage.
+</p>
+
+<p>
+    The quick-fix converts the <code>object</code> declaration to a <code>class</code>.
+</p>
+
+<pre><code>
+object ExamplePacket : RabbitPacket
+</code></pre>
+
+<pre><code>
+class ExamplePacket : RabbitPacket
+</code></pre>
+<!-- tooltip end -->
+<p>
+    Applies to all <code>object</code> declarations that extend <code>RabbitPacket</code>.
+</p>
+</body>
+</html>

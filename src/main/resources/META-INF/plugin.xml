@@ -215,6 +215,25 @@
         />
 
         <!-- Surf Rabbit -->
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.group.name"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         shortName="RabbitPacketIsNotSerializable"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.RabbitPacketIsNotSerializableInspection"
+                         key="inspection.rabbit.packet.is.not.serializable.display.name"
+        />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.group.name"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         shortName="RabbitPacketIsObject"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.RabbitPacketIsObjectInspection"
+                         key="inspection.rabbit.packet.is.object.display.name"
+        />
+
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.rabbitmq.facet.SurfRabbitFacetType"/>
     </extensions>
 
