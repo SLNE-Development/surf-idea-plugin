@@ -1,0 +1,4 @@
+#* @implicitly included *#
+#* @vtlvariable name="CLASS_BODY" type="java.lang.String" *#
+#* @vtlvariable name="RESPONSE_IMPORT" type="java.lang.String" file="../resources/fileTemplates/internal/Rabbit Request Packet.kt.ft" *#
+#* @vtlvariable name="PACKAGE_NAME" type="java.lang.String" *#

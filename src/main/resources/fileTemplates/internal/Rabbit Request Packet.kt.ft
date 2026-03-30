@@ -1,0 +1,11 @@
+#if (${PACKAGE_NAME} != "")package ${PACKAGE_NAME}
+
+#end
+import dev.slne.surf.rabbitmq.api.packet.RabbitRequestPacket
+import kotlinx.serialization.Serializable
+#if (${RESPONSE_IMPORT} != "")
+import ${RESPONSE_IMPORT}
+#end
+
+@Serializable
+${CLASS_BODY}

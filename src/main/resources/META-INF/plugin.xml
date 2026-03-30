@@ -235,6 +235,9 @@
         />
 
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.rabbitmq.facet.SurfRabbitFacetType"/>
+
+        <internalFileTemplate name="Rabbit Request Packet"/>
+        <internalFileTemplate name="Rabbit Response Packet"/>
     </extensions>
 
 
@@ -273,6 +276,14 @@
                 class="dev.slne.surf.idea.surfideaplugin.rabbitmq.generation.GenerateRabbitRequestHandlerCodeInsightAction"
                 text="Generate RabbitMQ Request Handler">
             <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+        <action id="Surf.NewRabbitPacket"
+                class="dev.slne.surf.idea.surfideaplugin.rabbitmq.actions.NewRabbitPacketAction"
+                text="Rabbit Packet"
+                description="Create a new Rabbit Request or Response packet"
+                icon="AllIcons.Providers.RabbitMQ"
+        >
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Kotlin.NewFile"/>
         </action>
     </actions>
 </idea-plugin>
