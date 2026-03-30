@@ -235,6 +235,10 @@
         />
 
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.rabbitmq.facet.SurfRabbitFacetType"/>
+        <codeInsight.lineMarkerProvider language="kotlin"
+                                        implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.markers.RabbitRequestHandlerClassLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="kotlin"
+                                        implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.markers.RabbitRequestCallLineMarkerProvider"/>
 
         <internalFileTemplate name="Rabbit Request Packet"/>
         <internalFileTemplate name="Rabbit Response Packet"/>
