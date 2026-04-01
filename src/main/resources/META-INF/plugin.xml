@@ -240,8 +240,12 @@
         <codeInsight.lineMarkerProvider language="kotlin"
                                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.markers.RabbitRequestCallLineMarkerProvider"/>
 
+        <completion.contributor language="kotlin"
+                                implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.completion.RabbitRespondCompletionContributor"/>
+
         <internalFileTemplate name="Rabbit Request Packet"/>
         <internalFileTemplate name="Rabbit Response Packet"/>
+        <internalFileTemplate name="Rabbit Handler Class" />
     </extensions>
 
 
@@ -288,6 +292,12 @@
                 icon="AllIcons.Providers.RabbitMQ"
         >
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Kotlin.NewFile"/>
+        </action>
+        <action id="surf.rabbit.NewHandlerAction"
+                class="dev.slne.surf.idea.surfideaplugin.rabbitmq.actions.NewRabbitHandlerAction"
+                text="Rabbit Handler"
+                description="Creates a new Rabbit Handler for a RabbitRequestPacket">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Surf.NewRabbitPacket" />
         </action>
     </actions>
 </idea-plugin>

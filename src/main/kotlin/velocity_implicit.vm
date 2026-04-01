@@ -1,4 +1,9 @@
 #* @implicitly included *#
+#* @vtlvariable name="CARET_PLACEHOLDER" type="java.lang.String" file="../resources/fileTemplates/internal/Rabbit Handler Class.kt.ft" *#
+#* @vtlvariable name="REQUEST_CLASS_NAME" type="java.lang.String" file="../resources/fileTemplates/internal/Rabbit Handler Class.kt.ft" *#
+#* @vtlvariable name="HANDLER_METHOD_NAME" type="java.lang.String" file="../resources/fileTemplates/internal/Rabbit Handler Class.kt.ft" *#
+#* @vtlvariable name="HANDLER_CLASS_NAME" type="java.lang.String" file="fileTemplates/internal/Rabbit Handler Class.kt.ft" *#
+#* @vtlvariable name="REQUEST_IMPORT" type="java.lang.String" file="fileTemplates/internal/Rabbit Handler Class.kt.ft" *#
 #* @vtlvariable name="CLASS_BODY" type="java.lang.String" *#
 #* @vtlvariable name="RESPONSE_IMPORT" type="java.lang.String" file="../resources/fileTemplates/internal/Rabbit Request Packet.kt.ft" *#
 #* @vtlvariable name="PACKAGE_NAME" type="java.lang.String" *#

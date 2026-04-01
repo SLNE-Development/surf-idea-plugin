@@ -1,0 +1,15 @@
+#if (${PACKAGE_NAME} != "")package ${PACKAGE_NAME}
+
+#end
+import dev.slne.surf.rabbitmq.api.handler.RabbitHandler
+#if (${REQUEST_IMPORT} != "")
+import ${REQUEST_IMPORT}
+#end
+
+object ${HANDLER_CLASS_NAME} {
+
+    @RabbitHandler
+    suspend fun ${HANDLER_METHOD_NAME}(request: ${REQUEST_CLASS_NAME}) {
+        ${CARET_PLACEHOLDER}
+    }
+}

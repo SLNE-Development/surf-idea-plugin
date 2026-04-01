@@ -69,6 +69,17 @@ tasks {
     buildSearchableOptions {
         enabled = false
     }
+
+    prepareSandbox {
+        doLast {
+            val sandboxPathsFile = sandboxConfigDirectory.file("disabled_plugins.txt").get().asFile
+            sandboxPathsFile.writeText( // <- a list of plugin IDs
+                """
+                kubernetes
+                """.trimIndent()
+            )
+        }
+    }
 }
 
 kotlin {

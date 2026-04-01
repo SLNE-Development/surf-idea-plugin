@@ -1,32 +1,35 @@
 package dev.slne.surf.idea.surfideaplugin.rabbitmq.generation
 
 import com.intellij.codeInsight.CodeInsightActionHandler
+import com.intellij.codeInsight.template.TemplateManager
+import com.intellij.codeInsight.template.impl.ConstantNode
 import com.intellij.ide.util.ClassFilter
 import com.intellij.ide.util.TreeClassChooserFactory
+import com.intellij.openapi.application.readAction
 import com.intellij.openapi.command.writeCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorModificationUtil
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.InheritanceUtil
 import com.intellij.refactoring.RefactoringBundle
 import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
+import dev.slne.surf.idea.surfideaplugin.common.util.findInsertOffset
 import dev.slne.surf.idea.surfideaplugin.common.util.isConcreteClass
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.SurfRabbitClassNames
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.SurfRabbitConstants
-import dev.slne.surf.idea.surfideaplugin.rabbitmq.generation.ui.RabbitRequestHandlerNameSelectionDialog
 import kotlinx.coroutines.launch
-import org.jetbrains.kotlin.idea.base.codeInsight.ShortenReferencesFacility
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.symbols.KaNamedClassSymbol
+import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.idea.base.util.module
-import org.jetbrains.kotlin.idea.core.insertMembersAfterAndReformat
+import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
-import org.jetbrains.kotlin.psi.KtNamedFunction
-import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
-import org.jetbrains.kotlin.utils.addToStdlib.lastIsInstanceOrNull
 
 class GenerateRabbitRequestHandlerAction : CodeInsightActionHandler {
 
@@ -56,22 +59,17 @@ class GenerateRabbitRequestHandlerAction : CodeInsightActionHandler {
         val chosenClass = chooser.selected ?: return
         val shortChosenClassName = chosenClass.nameIdentifier?.text ?: return
         val fqChosenClassName = chosenClass.qualifiedName ?: return
-        val defaultHandlerName = "handle" + shortChosenClassName.removeSuffix("Packet").removeSuffix("Request")
-
-        val dialog = RabbitRequestHandlerNameSelectionDialog(
-            editor,
-            "RabbitMQ Request Class",
-            shortChosenClassName,
-            defaultHandlerName
-        )
-        if (!dialog.showAndGet()) return
+        val defaultHandlerName = "handle" + shortChosenClassName
+            .removeSuffix("Packet")
+            .removeSuffix("Request")
 
         currentThreadCoroutineScope().launch {
             generateRequestHandler(
                 project = project,
                 editor = editor,
                 targetClass = targetClass,
-                handlerName = dialog.chosenName,
+                handlerName = defaultHandlerName,
+                requestClass = chosenClass,
                 requestClassName = fqChosenClassName
             )
         }
@@ -82,26 +80,60 @@ class GenerateRabbitRequestHandlerAction : CodeInsightActionHandler {
         editor: Editor,
         targetClass: KtClassOrObject,
         handlerName: String,
+        requestClass: PsiClass,
         requestClassName: String
     ) {
-        val annotationFqn = SurfRabbitClassNames.RABBIT_HANDLER_ANNOTATION
+        val templateManager = TemplateManager.getInstance(project)
+        val template = templateManager.createTemplate("", "")
+        template.isToReformat = true
+        template.isToShortenLongNames = true
 
-        val functionText = """
-            @$annotationFqn
-            fun $handlerName(${SurfRabbitConstants.RABBIT_HANDLER_PARAMETER_NAME}: $requestClassName) {
+        template.addTextSegment("@${SurfRabbitClassNames.RABBIT_HANDLER_ANNOTATION}\n")
+        // optionally make suspend
+        template.addVariable("SUSPEND", ConstantNode("suspend "), true)
+        template.addTextSegment("fun ")
+        template.addVariable("HANDLER_NAME", ConstantNode(handlerName), true)
+        template.addTextSegment("(${SurfRabbitConstants.RABBIT_HANDLER_PARAMETER_NAME}: $requestClassName) {\n")
+
+        if (requestClass is KtLightClass) {
+            getDestructuringParamNames(requestClass)?.let { params ->
+                val paramList = params.joinToString(", ")
+                template.addTextSegment(
+                    "val ($paramList) = ${SurfRabbitConstants.RABBIT_HANDLER_PARAMETER_NAME}\n"
+                )
             }
-        """.trimIndent()
+        }
 
-        writeCommandAction(project, "Generate RabbitMQ Event Handler") {
-            val factory = KtPsiFactory(project)
-            val prototype = factory.createFunction(functionText)
+        template.addEndVariable()
+        template.addTextSegment("\n}")
 
-            val anchor = targetClass.declarations.lastIsInstanceOrNull<KtNamedFunction>()
-                ?: targetClass.declarations.lastOrNull()
+        writeCommandAction(project, "Generate RabbitMQ Request Handler") {
+            val insertOffset = findInsertOffset(editor, targetClass)
 
-            val inserted = insertMembersAfterAndReformat(editor, targetClass, listOf(prototype), anchor)
-            inserted.firstOrNull()?.let {
-                ShortenReferencesFacility.getInstance().shorten(it)
+            PsiDocumentManager.getInstance(project).commitDocument(editor.document)
+            editor.document.insertString(insertOffset, "\n")
+            PsiDocumentManager.getInstance(project).commitDocument(editor.document)
+            editor.caretModel.moveToOffset(insertOffset + 2)
+
+            templateManager.startTemplate(editor, template)
+        }
+    }
+
+    suspend fun getDestructuringParamNames(ktLightClass: KtLightClass): List<String>? {
+        val ktClass = ktLightClass.kotlinOrigin as? KtClass ?: return null
+
+        return readAction {
+            if (!ktClass.isData()) return@readAction null
+
+            analyze(ktClass) {
+                val classSymbol = ktClass.symbol as? KaNamedClassSymbol ?: return@analyze null
+                val primaryCtor = classSymbol.memberScope.constructors
+                    .firstOrNull { it.isPrimary } ?: return@analyze null
+
+                val params = primaryCtor.valueParameters
+                if (params.isEmpty() || params.size > 10) return@analyze null
+
+                params.map { it.name.asString() }
             }
         }
     }

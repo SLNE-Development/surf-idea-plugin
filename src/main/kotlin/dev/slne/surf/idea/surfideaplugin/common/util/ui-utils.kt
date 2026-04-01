@@ -7,9 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.intellij.openapi.editor.Editor
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.typography
+import org.jetbrains.kotlin.psi.KtClassOrObject
+import org.jetbrains.kotlin.psi.KtDeclaration
 
 @Composable
 fun LabeledRow(
@@ -30,4 +33,29 @@ fun LabeledRow(
             content()
         }
     }
+}
+
+fun findInsertOffset(editor: Editor, targetClass: KtClassOrObject): Int {
+    val caretOffset = editor.caretModel.offset
+    val body = targetClass.body
+        ?: return targetClass.textRange.endOffset
+
+    val declarations = body.declarations
+    if (declarations.isEmpty()) {
+        return body.lBrace?.textRange?.endOffset
+            ?: targetClass.textRange.endOffset
+    }
+
+    var anchor: KtDeclaration? = null
+    for (declaration in declarations) {
+        if (declaration.textRange.startOffset <= caretOffset) {
+            anchor = declaration
+        } else {
+            break
+        }
+    }
+
+    return anchor?.textRange?.endOffset
+        ?: body.lBrace?.textRange?.endOffset
+        ?: targetClass.textRange.endOffset
 }
