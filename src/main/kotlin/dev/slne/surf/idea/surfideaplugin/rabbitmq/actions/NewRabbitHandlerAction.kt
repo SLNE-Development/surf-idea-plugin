@@ -16,11 +16,15 @@ import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.progress.currentThreadCoroutineScope
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.JavaPsiFacade
+import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
+import dev.slne.surf.idea.surfideaplugin.common.util.getDestructuringParamNames
 import dev.slne.surf.idea.surfideaplugin.common.util.isConcreteClass
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.SurfRabbitClassNames
+import dev.slne.surf.idea.surfideaplugin.rabbitmq.SurfRabbitConstants
 import kotlinx.coroutines.launch
+import org.jetbrains.kotlin.asJava.classes.KtLightClass
 
 class NewRabbitHandlerAction : CreateInDirectoryActionBase(
     "Rabbit Handler",
@@ -46,8 +50,9 @@ class NewRabbitHandlerAction : CreateInDirectoryActionBase(
                 "Choose Request Packet",
                 GlobalSearchScope.allScope(project),
                 baseClass,
-                null
-            ) { aClass -> aClass.isConcreteClass() }
+                null,
+                PsiClass::isConcreteClass
+            )
 
         chooser.showDialog()
         val selectedClass = chooser.selected ?: return
@@ -82,6 +87,10 @@ class NewRabbitHandlerAction : CreateInDirectoryActionBase(
         }
 
         currentThreadCoroutineScope().launch {
+            val destructingParams = (selectedClass as? KtLightClass)?.getDestructuringParamNames()
+                ?.takeUnless { it.size > 10 }
+                ?.joinToString(", ")
+
             writeCommandAction(project, "Create Rabbit Handler") {
                 val element = FileTemplateUtil.createFromTemplate(
                     template,
@@ -101,7 +110,18 @@ class NewRabbitHandlerAction : CreateInDirectoryActionBase(
 
                 if (markerOffset >= 0) {
                     document.deleteString(markerOffset, markerOffset + CARET_MARKER.length)
-                    editor.caretModel.moveToOffset(markerOffset)
+
+                    if (destructingParams != null) {
+                        val destructingParamsText =
+                            "val ($destructingParams) = ${SurfRabbitConstants.RABBIT_HANDLER_PARAMETER_NAME}\n        // Handle request here"
+
+                        document.insertString(markerOffset, destructingParamsText)
+                        editor.caretModel.moveToOffset(
+                            markerOffset + destructingParamsText.length
+                        )
+                    } else {
+                        editor.caretModel.moveToOffset(markerOffset)
+                    }
                 }
             }
         }

@@ -5,7 +5,6 @@ import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.codeInsight.template.impl.ConstantNode
 import com.intellij.ide.util.ClassFilter
 import com.intellij.ide.util.TreeClassChooserFactory
-import com.intellij.openapi.application.readAction
 import com.intellij.openapi.command.writeCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorModificationUtil
@@ -19,15 +18,13 @@ import com.intellij.psi.util.InheritanceUtil
 import com.intellij.refactoring.RefactoringBundle
 import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
 import dev.slne.surf.idea.surfideaplugin.common.util.findInsertOffset
+import dev.slne.surf.idea.surfideaplugin.common.util.getDestructuringParamNames
 import dev.slne.surf.idea.surfideaplugin.common.util.isConcreteClass
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.SurfRabbitClassNames
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.SurfRabbitConstants
 import kotlinx.coroutines.launch
-import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.analysis.api.symbols.KaNamedClassSymbol
 import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.idea.base.util.module
-import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
@@ -96,7 +93,7 @@ class GenerateRabbitRequestHandlerAction : CodeInsightActionHandler {
         template.addTextSegment("(${SurfRabbitConstants.RABBIT_HANDLER_PARAMETER_NAME}: $requestClassName) {\n")
 
         if (requestClass is KtLightClass) {
-            getDestructuringParamNames(requestClass)?.let { params ->
+            requestClass.getDestructuringParamNames()?.takeUnless { it.size > 10 }?.let { params ->
                 val paramList = params.joinToString(", ")
                 template.addTextSegment(
                     "val ($paramList) = ${SurfRabbitConstants.RABBIT_HANDLER_PARAMETER_NAME}\n"
@@ -116,25 +113,6 @@ class GenerateRabbitRequestHandlerAction : CodeInsightActionHandler {
             editor.caretModel.moveToOffset(insertOffset + 2)
 
             templateManager.startTemplate(editor, template)
-        }
-    }
-
-    suspend fun getDestructuringParamNames(ktLightClass: KtLightClass): List<String>? {
-        val ktClass = ktLightClass.kotlinOrigin as? KtClass ?: return null
-
-        return readAction {
-            if (!ktClass.isData()) return@readAction null
-
-            analyze(ktClass) {
-                val classSymbol = ktClass.symbol as? KaNamedClassSymbol ?: return@analyze null
-                val primaryCtor = classSymbol.memberScope.constructors
-                    .firstOrNull { it.isPrimary } ?: return@analyze null
-
-                val params = primaryCtor.valueParameters
-                if (params.isEmpty() || params.size > 10) return@analyze null
-
-                params.map { it.name.asString() }
-            }
         }
     }
 

@@ -233,6 +233,16 @@
                          implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.RabbitPacketIsObjectInspection"
                          key="inspection.rabbit.packet.is.object.display.name"
         />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.group.name"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         shortName="RabbitHandlerModifierInspection"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.RabbitHandlerModifierInspection"
+                         key="inspection.rabbit.handler.modifier.inspection.display.name"
+        />
+
 
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.rabbitmq.facet.SurfRabbitFacetType"/>
         <codeInsight.lineMarkerProvider language="kotlin"
@@ -245,7 +255,7 @@
 
         <internalFileTemplate name="Rabbit Request Packet"/>
         <internalFileTemplate name="Rabbit Response Packet"/>
-        <internalFileTemplate name="Rabbit Handler Class" />
+        <internalFileTemplate name="Rabbit Handler Class"/>
     </extensions>
 
 
@@ -297,7 +307,7 @@
                 class="dev.slne.surf.idea.surfideaplugin.rabbitmq.actions.NewRabbitHandlerAction"
                 text="Rabbit Handler"
                 description="Creates a new Rabbit Handler for a RabbitRequestPacket">
-            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Surf.NewRabbitPacket" />
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="Surf.NewRabbitPacket"/>
         </action>
     </actions>
 </idea-plugin>
