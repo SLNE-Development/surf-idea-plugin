@@ -5,6 +5,9 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiModifier
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.asJava.classes.KtLightClass
+import org.jetbrains.kotlin.idea.base.psi.KotlinPsiHeuristics
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.KtClass
 
 fun PsiClass.isConcreteClass(): Boolean {
@@ -29,4 +32,8 @@ suspend fun KtLightClass.getDestructuringParamNames(): List<String>? {
             params.map { it.name.asString() }
         }
     })
+}
+
+fun KtAnnotated.hasAnnotationPsi(fqName: FqName): Boolean {
+    return KotlinPsiHeuristics.hasAnnotation(this, fqName)
 }

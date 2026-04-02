@@ -242,6 +242,15 @@
                          implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.RabbitHandlerModifierInspection"
                          key="inspection.rabbit.handler.modifier.inspection.display.name"
         />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.group.name"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         shortName="RabbitHandlerParameterInspection"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.RabbitHandlerParameterInspection"
+                         key="inspection.rabbit.handler.parameter.inspection.display.name"
+        />
 
 
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.rabbitmq.facet.SurfRabbitFacetType"/>
