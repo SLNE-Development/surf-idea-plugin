@@ -5,9 +5,10 @@ import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.util.TextRange
-import dev.slne.surf.idea.surfideaplugin.common.util.hasAnnotation
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.RabbitFacetAwareKotlinApplicableInspectionBase
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.SurfRabbitClassNames
+import dev.slne.surf.idea.surfideaplugin.rabbitmq.util.isRabbitHandler
+import dev.slne.surf.idea.surfideaplugin.rabbitmq.util.isRabbitHandlerPsi
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.idea.codeinsight.api.applicators.ApplicabilityRange
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -21,9 +22,12 @@ class RabbitHandlerParameterInspection :
         data object WrongParameterType : Context
     }
 
+    override fun isApplicableByPsi(element: KtNamedFunction): Boolean {
+        return element.isRabbitHandlerPsi()
+    }
+
     override fun KaSession.prepareContext(element: KtNamedFunction): Context? {
-        val isHandler = element.hasAnnotation(SurfRabbitClassNames.RABBIT_HANDLER_ANNOTATION_ID)
-        if (!isHandler) return null
+        if (!element.isRabbitHandler()) return null
 
         val valueParameters = element.valueParameters
         if (valueParameters.size != 1) return Context.WrongParameterCount

@@ -251,6 +251,24 @@
                          implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.RabbitHandlerParameterInspection"
                          key="inspection.rabbit.handler.parameter.inspection.display.name"
         />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.group.name"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         shortName="RabbitHandlerParameterNameInspection"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.RabbitHandlerParameterNameInspection"
+                         key="inspection.rabbit.handler.parameter.name.inspection.display.name"
+        />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.group.name"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         shortName="RabbitHandlerReturnTypeInspection"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.RabbitHandlerReturnTypeInspection"
+                         key="inspection.rabbit.handler.return.type.inspection.display.name"
+        />
 
 
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.rabbitmq.facet.SurfRabbitFacetType"/>

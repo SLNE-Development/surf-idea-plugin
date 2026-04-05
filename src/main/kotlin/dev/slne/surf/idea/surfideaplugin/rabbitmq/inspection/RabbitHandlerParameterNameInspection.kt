@@ -4,28 +4,21 @@ import com.intellij.codeInspection.InspectionManager
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.jvm.analysis.quickFix.RenameQuickFix
 import com.intellij.openapi.util.TextRange
-import dev.slne.surf.idea.surfideaplugin.common.quickfix.ChangeModifierFix
+import dev.slne.surf.idea.surfideaplugin.common.util.hasAnnotation
+import dev.slne.surf.idea.surfideaplugin.common.util.hasAnnotationPsi
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.RabbitFacetAwareKotlinApplicableInspectionBase
-import dev.slne.surf.idea.surfideaplugin.rabbitmq.util.isRabbitHandler
-import dev.slne.surf.idea.surfideaplugin.rabbitmq.util.isRabbitHandlerPsi
+import dev.slne.surf.idea.surfideaplugin.rabbitmq.SurfRabbitClassNames
+import dev.slne.surf.idea.surfideaplugin.rabbitmq.SurfRabbitConstants
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.idea.codeinsight.api.applicable.asUnit
 import org.jetbrains.kotlin.idea.codeinsight.api.applicators.ApplicabilityRange
-import org.jetbrains.kotlin.idea.codeinsights.impl.base.asQuickFix
-import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtVisitor
 import org.jetbrains.kotlin.psi.namedFunctionVisitor
 
-class RabbitHandlerModifierInspection : RabbitFacetAwareKotlinApplicableInspectionBase<KtNamedFunction, Unit>() {
-    private val forbiddenModifier = setOf(
-        KtTokens.ABSTRACT_KEYWORD,
-        KtTokens.OPEN_KEYWORD,
-        KtTokens.OVERRIDE_KEYWORD,
-        KtTokens.INLINE_KEYWORD,
-    )
-
+class RabbitHandlerParameterNameInspection : RabbitFacetAwareKotlinApplicableInspectionBase<KtNamedFunction, Unit>() {
     override fun buildVisitor(
         holder: ProblemsHolder,
         isOnTheFly: Boolean
@@ -34,20 +27,19 @@ class RabbitHandlerModifierInspection : RabbitFacetAwareKotlinApplicableInspecti
     }
 
     override fun isApplicableByPsi(element: KtNamedFunction): Boolean {
-        val hasForbiddenModifier = forbiddenModifier.any { element.hasModifier(it) }
-        if (!hasForbiddenModifier) return false
+        val parameters = element.valueParameters
+        if (parameters.isEmpty()) return false
+        if (parameters.first().name == SurfRabbitConstants.RABBIT_HANDLER_PARAMETER_NAME) return false
 
-        return element.isRabbitHandlerPsi()
+        return element.hasAnnotationPsi(SurfRabbitClassNames.RABBIT_HANDLER_ANNOTATION_FQN)
     }
 
     override fun KaSession.prepareContext(element: KtNamedFunction): Unit? {
-        return element.isRabbitHandler().asUnit
+        return element.hasAnnotation(SurfRabbitClassNames.RABBIT_HANDLER_ANNOTATION_ID).asUnit
     }
 
     override fun getApplicableRanges(element: KtNamedFunction): List<TextRange> {
-        return ApplicabilityRange.multiple(element) {
-            forbiddenModifier.mapNotNull { element.modifierList?.getModifier(it) }
-        }
+        return ApplicabilityRange.single(element) { it.valueParameters.firstOrNull()?.nameIdentifier }
     }
 
     override fun InspectionManager.createProblemDescriptor(
@@ -59,13 +51,10 @@ class RabbitHandlerModifierInspection : RabbitFacetAwareKotlinApplicableInspecti
         return createProblemDescriptor(
             element,
             rangeInElement,
-            "Rabbit handler must be accessible for MethodHandles.Lookup. " +
-                    "Remove modifiers like ${forbiddenModifier.joinToString("/", transform = { it.value })}.",
-            ProblemHighlightType.WARNING,
+            "Parameter of @RabbitHandler should be named '${SurfRabbitConstants.RABBIT_HANDLER_PARAMETER_NAME}'",
+            ProblemHighlightType.WEAK_WARNING,
             onTheFly,
-            *forbiddenModifier.map {
-                ChangeModifierFix.removeModifier(element, it).asQuickFix()
-            }.toTypedArray()
+            RenameQuickFix(element.valueParameters.first(), SurfRabbitConstants.RABBIT_HANDLER_PARAMETER_NAME)
         )
     }
 }
