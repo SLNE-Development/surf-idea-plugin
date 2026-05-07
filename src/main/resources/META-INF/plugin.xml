@@ -46,10 +46,16 @@
 
     <resource-bundle>messages.SurfBundle</resource-bundle>
 
+    <projectListeners>
+        <listener
+                class="dev.slne.surf.idea.surfideaplugin.common.facet.SurfFacetSyncListener"
+                topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"
+        />
+    </projectListeners>
+
     <extensions defaultExtensionNs="com.intellij">
         <!-- Surf-API -->
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFacetType"/>
-        <!--        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFrameworkDetector"/>-->
 
         <localInspection
                 language="kotlin"
@@ -87,9 +93,9 @@
 
         <!-- Surf-Redis -->
         <facetType implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFacetType"/>
-        <!--        <framework.detector implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRabbitFrameworkDetector"/>-->
 
         <postStartupActivity implementation="dev.slne.surf.idea.surfideaplugin.common.facet.SurfFacetSetupActivity"/>
+
 
         <localInspection
                 language="kotlin"
@@ -268,6 +274,15 @@
                          shortName="RabbitHandlerReturnTypeInspection"
                          implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.RabbitHandlerReturnTypeInspection"
                          key="inspection.rabbit.handler.return.type.inspection.display.name"
+        />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.group.name"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         shortName="RabbitHandlerMissingRespondInspection"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.RabbitHandlerMissingRespondInspection"
+                         key="inspection.rabbit.handler.missing.respond.inspection.display.name"
         />
 
 

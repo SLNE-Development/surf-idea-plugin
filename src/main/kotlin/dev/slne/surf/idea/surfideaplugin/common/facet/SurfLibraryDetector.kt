@@ -10,15 +10,15 @@ import org.jetbrains.kotlin.idea.base.util.module
 
 object SurfLibraryDetector {
 
-    const val SURF_API_CORE = "dev.slne.surf.surfapi.core.api.SurfCoreApi"
-    const val SURF_API_PAPER = "dev.slne.surf.surfapi.bukkit.api.SurfBukkitApi"
-    const val SURF_API_VELOCITY = "dev.slne.surf.surfapi.velocity.api.SurfVelocityApi"
+    const val SURF_API_CORE = "dev.slne.surf.api.core.SurfApiCore"
+    const val SURF_API_PAPER = "dev.slne.surf.api.paper.SurfApiPaper"
+    const val SURF_API_VELOCITY = "dev.slne.surf.api.velocity.SurfApiVelocity"
 
     const val SURF_REDIS_API = "dev.slne.surf.redis.RedisApi"
 
     const val SURF_DATABASE_API = "dev.slne.surf.database.DatabaseApi"
 
-    const val SURF_RABBITMQ_COMMON_API = "dev.slne.surf.rabbitmq.api.RabbitMqApi"
+    const val SURF_RABBITMQ_COMMON_API = "dev.slne.surf.rabbitmq.api.RabbitMQApi"
     const val SURF_RABBITMQ_SERVER_API = "dev.slne.surf.rabbitmq.api.ServerRabbitMQApi"
     const val SURF_RABBITMQ_CLIENT_API = "dev.slne.surf.rabbitmq.api.ClientRabbitMQApi"
 
