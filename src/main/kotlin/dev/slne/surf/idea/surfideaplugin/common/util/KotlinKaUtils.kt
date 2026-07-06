@@ -2,11 +2,13 @@
 
 package dev.slne.surf.idea.surfideaplugin.common.util
 
+import dev.slne.surf.idea.surfideaplugin.util.FqClassNameSet
 import org.jetbrains.kotlin.analysis.api.KaContextParameterApi
 import org.jetbrains.kotlin.analysis.api.KaSession
-import org.jetbrains.kotlin.analysis.api.components.defaultType
+import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotation
 import org.jetbrains.kotlin.analysis.api.components.isSubClassOf
-import org.jetbrains.kotlin.analysis.api.symbols.classSymbol
+import org.jetbrains.kotlin.analysis.api.components.isSubtypeOf
+import org.jetbrains.kotlin.analysis.api.symbols.KaCallableSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.findClass
 import org.jetbrains.kotlin.analysis.api.symbols.namedClassSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.symbol
@@ -31,8 +33,18 @@ fun KtNamedFunction.hasAnyAnnotation(annotationIds: Iterable<ClassId>): Boolean 
 }
 
 context(_: KaSession)
+fun KaCallableSymbol.hasAnyAnnotation(annotations: FqClassNameSet): Boolean {
+    return this.annotations.any { it.classId in annotations.classIds }
+}
+
+context(_: KaSession)
 fun KtClass.hasAnnotation(annotationId: ClassId): Boolean {
     return symbol.annotations.any { it.classId == annotationId }
+}
+
+context(_: KaSession)
+fun KtNamedFunction.findFirstAnnotation(annotationIds: Set<ClassId>): KaAnnotation? {
+    return symbol.annotations.find { annotationIds.contains(it.classId) }
 }
 
 context(_: KaSession)
@@ -51,4 +63,9 @@ fun KtClassOrObject.isSubClassOf(classId: ClassId): Boolean {
     val superSymbol = findClass(classId) ?: return false
 
     return symbol.isSubClassOf(superSymbol)
+}
+
+context(_: KaSession)
+fun KtParameter.isReturnType(classId: ClassId): Boolean {
+    return symbol.returnType.isSubtypeOf(classId)
 }

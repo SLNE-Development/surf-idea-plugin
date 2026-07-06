@@ -17,7 +17,7 @@ import com.intellij.psi.PsiFile
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.facet.SurfRabbitFacetType
 
 
-class NewRabbitPacketAction : CreateFileFromTemplateAction(), DumbAware {
+class NewRabbitPacketAction : CreateFileFromTemplateAction() {
 
     override fun startInWriteAction(): Boolean {
         return false

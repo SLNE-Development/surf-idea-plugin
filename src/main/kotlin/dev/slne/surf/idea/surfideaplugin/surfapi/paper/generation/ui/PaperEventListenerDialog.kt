@@ -1,90 +1,106 @@
 package dev.slne.surf.idea.surfideaplugin.surfapi.paper.generation.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.util.ui.JBDimension
-import dev.slne.surf.idea.surfideaplugin.common.util.LabeledRow
+import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.ui.components.JBCheckBox
+import com.intellij.ui.components.JBTextField
+import com.intellij.ui.dsl.builder.AlignX
+import com.intellij.ui.dsl.builder.COLUMNS_LARGE
+import com.intellij.ui.dsl.builder.columns
+import com.intellij.ui.dsl.builder.panel
 import dev.slne.surf.idea.surfideaplugin.surfapi.paper.util.PaperEventListenerPriorities
-import org.jetbrains.jewel.bridge.JewelComposePanel
-import org.jetbrains.jewel.foundation.enableNewSwingCompositing
-import org.jetbrains.jewel.foundation.theme.JewelTheme
-import org.jetbrains.jewel.ui.component.CheckboxRow
-import org.jetbrains.jewel.ui.component.ListComboBox
-import org.jetbrains.jewel.ui.component.Text
-import org.jetbrains.jewel.ui.component.TextField
-import org.jetbrains.jewel.ui.typography
+import org.jetbrains.kotlin.name.Name
+import java.awt.Component
 import javax.swing.JComponent
 
 class PaperEventListenerDialog(
     project: Project,
+    parentComponent: Component,
     private val eventClassName: String,
-    defaultHandlerName: String
-) : DialogWrapper(project) {
+    defaultHandlerName: String,
+    private val existingHandlerNames: Set<String>,
+) : DialogWrapper(project, parentComponent, true, IdeModalityType.IDE) {
 
-    private val handlerNameState = TextFieldState(defaultHandlerName)
-    private var selectedPriorityIndex by mutableIntStateOf(PaperEventListenerPriorities.NORMAL.ordinal)
-    private var ignoreCancelledState by mutableStateOf(false)
+    private val handlerNameField = JBTextField(defaultHandlerName)
+    private val priorityComboBox = ComboBox(
+        PaperEventListenerPriorities.entries.toTypedArray(),
+    ).apply {
+        selectedItem = PaperEventListenerPriorities.NORMAL
+    }
 
-    val handlerName: String get() = handlerNameState.text.toString()
-    val priority: PaperEventListenerPriorities? get() = PaperEventListenerPriorities.entries.getOrNull(selectedPriorityIndex)
-    val ignoreCancelled: Boolean get() = ignoreCancelledState
+    private val ignoreCancelledCheckBox = JBCheckBox(
+        "Ignore cancelled events",
+        true,
+    )
+
+    val handlerName: String
+        get() = handlerNameField.text.trim()
+
+    val priority: PaperEventListenerPriorities
+        get() = priorityComboBox.selectedItem as PaperEventListenerPriorities
+
+    val ignoreCancelled: Boolean
+        get() = ignoreCancelledCheckBox.isSelected
 
     init {
         title = "Generate Paper Event Listener"
         init()
+        initValidation()
     }
 
-    override fun createCenterPanel(): JComponent {
-        enableNewSwingCompositing()
-        return JewelComposePanel {
-            PaperEventListenerContent()
-        }.apply {
-            minimumSize = JBDimension(400, 150)
-            preferredSize = JBDimension(450, 160)
+    override fun createCenterPanel(): JComponent = panel {
+        row("Event class:") {
+            label(eventClassName)
+                .align(AlignX.FILL)
+        }
+
+        row("Handler name:") {
+            cell(handlerNameField)
+                .columns(COLUMNS_LARGE)
+                .focused()
+                .align(AlignX.FILL)
+        }
+
+        row("Priority:") {
+            cell(priorityComboBox)
+                .align(AlignX.FILL)
+        }
+
+        row {
+            cell(ignoreCancelledCheckBox)
         }
     }
 
-    @Composable
-    private fun PaperEventListenerContent() {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            LabeledRow("Event class:") {
-                Text(eventClassName, style = JewelTheme.typography.labelTextStyle)
-            }
+    override fun getPreferredFocusedComponent(): JComponent {
+        return handlerNameField
+    }
 
-            LabeledRow("Handler name:") {
-                TextField(
-                    state = handlerNameState,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+    override fun doValidate(): ValidationInfo? {
+        val name = handlerName
 
-            LabeledRow("Priority:") {
-                ListComboBox(
-                    items = PaperEventListenerPriorities.names,
-                    modifier = Modifier.fillMaxWidth(),
-                    selectedIndex = selectedPriorityIndex,
-                    onSelectedItemChange = { selectedPriorityIndex = it },
-                )
-            }
-
-            CheckboxRow(
-                text = "Ignore cancelled events",
-                checked = ignoreCancelledState,
-                onCheckedChange = { ignoreCancelledState = it }
+        if (name.isBlank()) {
+            return ValidationInfo(
+                "Handler name must not be empty.",
+                handlerNameField,
             )
         }
-    }
 
-    override fun getPreferredFocusedComponent(): JComponent? = null
+        if (!Name.isValidIdentifier(name)) {
+            return ValidationInfo(
+                "Handler name must be a valid Kotlin function name.",
+                handlerNameField,
+            )
+        }
+
+        if (name in existingHandlerNames) {
+            return ValidationInfo(
+                "A function named '$name' already exists in this class.",
+                handlerNameField,
+            )
+        }
+
+        return null
+    }
 }

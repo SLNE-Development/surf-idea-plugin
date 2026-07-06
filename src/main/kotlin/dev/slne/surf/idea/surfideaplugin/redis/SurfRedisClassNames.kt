@@ -1,5 +1,6 @@
 package dev.slne.surf.idea.surfideaplugin.redis
 
+import com.squareup.kotlinpoet.ClassName
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 
@@ -30,4 +31,9 @@ object SurfRedisClassNames {
     val REDIS_REQUEST_CLASS_ID = ClassId.topLevel(REDIS_REQUEST_CLASS_FQN)
     val REDIS_RESPONSE_CLASS_ID = ClassId.topLevel(REDIS_RESPONSE_CLASS_FQN)
     val REQUEST_CONTEXT_CLASS_ID = ClassId.topLevel(REQUEST_CONTEXT_CLASS_FQN)
+
+    // Class names
+    val ON_REDIS_EVENT_ANNOTATION_NAME = ClassName.bestGuess(ON_REDIS_EVENT_ANNOTATION)
+    val HANDLE_REDIS_REQUEST_ANNOTATION_NAME = ClassName.bestGuess(HANDLE_REDIS_REQUEST_ANNOTATION)
+    val REQUEST_CONTEXT_CLASS_NAME = ClassName.bestGuess(REQUEST_CONTEXT_CLASS)
 }

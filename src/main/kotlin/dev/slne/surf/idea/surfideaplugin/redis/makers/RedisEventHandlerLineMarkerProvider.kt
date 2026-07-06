@@ -1,39 +1,54 @@
 package dev.slne.surf.idea.surfideaplugin.redis.makers
 
+import com.intellij.codeInsight.daemon.GutterName
 import com.intellij.codeInsight.daemon.LineMarkerInfo
-import com.intellij.codeInsight.daemon.LineMarkerProvider
+import com.intellij.codeInsight.daemon.LineMarkerProviderDescriptor
 import com.intellij.java.ultimate.icons.JavaUltimateIcons
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.psi.PsiElement
 import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisClassNames
 import org.jetbrains.kotlin.idea.base.psi.KotlinPsiHeuristics
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import javax.swing.Icon
 
-class RedisEventHandlerLineMarkerProvider : LineMarkerProvider {
+class RedisEventHandlerLineMarkerProvider : LineMarkerProviderDescriptor() {
     private val handlerAnnotations = setOf(
-        SurfRedisClassNames.ON_REDIS_EVENT_ANNOTATION,
-        SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION
-    ).map { FqName(it) }
+        SurfRedisClassNames.ON_REDIS_EVENT_ANNOTATION_FQN,
+        SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_FQN
+    )
+
+    override fun getName(): @GutterName String {
+        return "Surf Redis handler"
+    }
+
+    override fun getIcon(): Icon {
+        return JavaUltimateIcons.Cdi.Listener
+    }
 
     override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*>? {
         val function = element.parent as? KtNamedFunction ?: return null
         if (element != function.nameIdentifier) return null
 
-        val handler = handlerAnnotations.firstNotNullOfOrNull {
-            KotlinPsiHeuristics.findAnnotation(function, it)
-        }
+        val annotation = handlerAnnotations.firstNotNullOfOrNull { annotationFqName ->
+            KotlinPsiHeuristics.findAnnotation(function, annotationFqName)
+        } ?: return null
 
-        if (handler == null) return null
+        val annotationName = annotation.shortName?.asString() ?: return null
 
         return LineMarkerInfo(
             element,
             element.textRange,
-            JavaUltimateIcons.Cdi.Listener,
-            { "Surf Redis: @${handler.shortName?.asString()} handler" },
+            icon,
+            { buildTooltip(annotationName) },
             null,
             GutterIconRenderer.Alignment.LEFT,
             { "Surf Redis handler" }
         )
+    }
+
+    private fun buildTooltip(annotationName: String): String = buildString {
+        append("Surf Redis: @")
+        append(annotationName)
+        append(" handler")
     }
 }

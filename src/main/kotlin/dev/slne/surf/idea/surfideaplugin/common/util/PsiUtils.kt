@@ -3,6 +3,7 @@ package dev.slne.surf.idea.surfideaplugin.common.util
 import com.intellij.openapi.application.readAction
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiModifier
+import dev.slne.surf.idea.surfideaplugin.util.FqClassNameSet
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.idea.base.psi.KotlinPsiHeuristics
@@ -36,4 +37,12 @@ suspend fun KtLightClass.getDestructuringParamNames(): List<String>? {
 
 fun KtAnnotated.hasAnnotationPsi(fqName: FqName): Boolean {
     return KotlinPsiHeuristics.hasAnnotation(this, fqName)
+}
+
+fun KtAnnotated.hasAnyAnnotationPsi(fqNames: Collection<FqName>): Boolean {
+    return fqNames.any { hasAnnotationPsi(it) }
+}
+
+fun KtAnnotated.hasAnyAnnotationPsi(fqNameSet: FqClassNameSet): Boolean {
+    return hasAnyAnnotationPsi(fqNameSet.fqNames)
 }

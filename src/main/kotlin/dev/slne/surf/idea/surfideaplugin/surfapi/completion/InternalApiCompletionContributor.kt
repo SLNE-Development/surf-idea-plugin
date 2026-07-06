@@ -1,28 +1,26 @@
 package dev.slne.surf.idea.surfideaplugin.surfapi.completion
 
 import com.intellij.codeInsight.completion.*
-import com.intellij.codeInsight.lookup.LookupElement
-import com.intellij.openapi.roots.ProjectFileIndex
+import com.intellij.openapi.project.DumbService
 import com.intellij.patterns.PlatformPatterns
-import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
-import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
-import dev.slne.surf.idea.surfideaplugin.surfapi.SurfApiClassNames
+import dev.slne.surf.idea.surfideaplugin.common.facet.hasLibrary
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
 import dev.slne.surf.idea.surfideaplugin.surfapi.service.internalApiService
-import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.idea.base.util.module
-import org.jetbrains.kotlin.psi.KtDeclaration
+import org.jetbrains.kotlin.psi.KtFile
 
 class InternalApiCompletionContributor : CompletionContributor() {
     init {
         extend(
             CompletionType.BASIC,
-            PlatformPatterns.psiElement(),
+            PlatformPatterns.psiElement().withLanguage(KotlinLanguage.INSTANCE),
             InternalApiCompletionProvider
         )
         extend(
             CompletionType.SMART,
-            PlatformPatterns.psiElement(),
+            PlatformPatterns.psiElement().withLanguage(KotlinLanguage.INSTANCE),
             InternalApiCompletionProvider
         )
     }
@@ -34,40 +32,38 @@ class InternalApiCompletionContributor : CompletionContributor() {
             result: CompletionResultSet
         ) {
             val position = parameters.position
-            val module = position.module ?: return
+            val project = position.project
 
-            if (!SurfLibraryDetector.hasSurfApiCore(module)) return
-            if (!SurfLibraryDetector.isClassInModuleClasspath(
-                    module,
-                    SurfApiClassNames.INTERNAL_API_MARKER_ANNOTATION
-                )
-            ) return
+            if (DumbService.isDumb(project)) {
+                return
+            }
+
+            val file = position.containingFile
+            if (file !is KtFile) {
+                return
+            }
+
+            val module = position.module ?: return
+            if (!module.hasLibrary(SurfLibraryMarker.SURF_API_CORE)) {
+                return
+            }
+
+            val internalApiService = project.internalApiService()
+
+            if (!internalApiService.isAvailableIn(module)) {
+                return
+            }
+
+            val filteringSession = internalApiService.createFilteringSession(position)
 
             result.runRemainingContributors(parameters) { completionResult ->
                 val lookupElement = completionResult.lookupElement
-                if (shouldFilterOut(lookupElement, position)) {
+
+                if (filteringSession.shouldHide(lookupElement)) {
                     return@runRemainingContributors
                 }
+
                 result.passResult(completionResult)
-            }
-        }
-
-        private fun shouldFilterOut(lookupElement: LookupElement, position: PsiElement): Boolean {
-            val psiElement = lookupElement.psiElement ?: return false
-            val ktDeclaration = psiElement as? KtDeclaration ?: return false
-
-            val virtualFile = ktDeclaration.containingFile?.virtualFile ?: return false
-            val project = position.project
-            val fileIndex = ProjectFileIndex.getInstance(project)
-            if (fileIndex.isInSourceContent(virtualFile)) return false
-
-            return try {
-                analyze(ktDeclaration) {
-                    val symbol = ktDeclaration.symbol
-                    internalApiService().isHiddenInternalApi(symbol, position)
-                }
-            } catch (_: Exception) {
-                false
             }
         }
     }

@@ -13,7 +13,16 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.ui.JBIntSpinner
+import com.intellij.ui.components.JBCheckBox
+import com.intellij.ui.components.JBTextField
+import com.intellij.ui.dsl.builder.AlignX
+import com.intellij.ui.dsl.builder.COLUMNS_LARGE
+import com.intellij.ui.dsl.builder.columns
+import com.intellij.ui.dsl.builder.panel
 import com.intellij.util.ui.JBDimension
 import dev.slne.surf.idea.surfideaplugin.common.util.LabeledRow
 import org.jetbrains.jewel.bridge.JewelComposePanel
@@ -23,142 +32,130 @@ import org.jetbrains.jewel.ui.component.CheckboxRow
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.TextField
 import org.jetbrains.jewel.ui.typography
+import org.jetbrains.kotlin.name.Name
+import java.awt.Component
 import javax.swing.JComponent
 
 class VelocityEventListenerDialog(
     project: Project,
+    parentComponent: Component,
     private val eventClassName: String,
-    defaultHandlerName: String
-) : DialogWrapper(project) {
+    defaultHandlerName: String,
+    private val existingHandlerNames: Set<String>,
+) : DialogWrapper(project, parentComponent, true, IdeModalityType.IDE) {
 
-    private val handlerNameState = TextFieldState(defaultHandlerName)
-    private val priorityState = TextFieldState("0")
+    private val handlerNameField = JBTextField(defaultHandlerName)
 
-    val handlerName: String get() = handlerNameState.text.toString()
-    val selectedPriority: Int get() = priorityState.text.toString().toIntOrNull() ?: 0
-    var suspendHandler: Boolean by mutableStateOf(false)
-        private set
+    private val orderSpinner = JBIntSpinner(
+        VelocitySubscribeOrderPreset.NORMAL.value,
+        Short.MIN_VALUE.toInt(),
+        Short.MAX_VALUE.toInt(),
+    )
+
+    private val orderPresetComboBox = ComboBox(
+        VelocitySubscribeOrderPreset.entries.toTypedArray()
+    ).apply {
+        selectedItem = VelocitySubscribeOrderPreset.NORMAL
+
+        addActionListener {
+            val preset = selectedItem as? VelocitySubscribeOrderPreset ?: return@addActionListener
+            orderSpinner.value = preset.value
+        }
+    }
+
+    private val suspendHandlerCheckBox = JBCheckBox(
+        "Generate suspend handler",
+        false,
+    )
+
+    val handlerName: String
+        get() = handlerNameField.text.trim()
+
+    val selectedOrder: Int
+        get() = (orderSpinner.value as Number).toInt()
+
+    val suspendHandler: Boolean
+        get() = suspendHandlerCheckBox.isSelected
+
 
     init {
         title = "Generate Velocity Event Listener"
         init()
+        initValidation()
     }
+    override fun createCenterPanel(): JComponent = panel {
+        row("Event class:") {
+            label(eventClassName)
+                .align(AlignX.FILL)
+        }
 
-    override fun createCenterPanel(): JComponent {
-        enableNewSwingCompositing()
-        return JewelComposePanel {
-            VelocityEventListenerContent()
-        }.apply {
-            minimumSize = JBDimension(400, 150)
-            preferredSize = JBDimension(450, 160)
+        row("Handler name:") {
+            cell(handlerNameField)
+                .columns(COLUMNS_LARGE)
+                .focused()
+                .align(AlignX.FILL)
+        }
+
+        row("Order preset:") {
+            cell(orderPresetComboBox)
+                .align(AlignX.FILL)
+        }
+
+        row("Order:") {
+            cell(orderSpinner)
+        }
+
+        row {
+            cell(suspendHandlerCheckBox)
         }
     }
 
-    @Composable
-    private fun VelocityEventListenerContent() {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            LabeledRow("Event class:") {
-                Text(eventClassName, style = JewelTheme.typography.labelTextStyle)
-            }
+    override fun getPreferredFocusedComponent(): JComponent {
+        return handlerNameField
+    }
 
-            LabeledRow("Handler name:") {
-                TextField(
-                    state = handlerNameState,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+    override fun doValidate(): ValidationInfo? {
+        val name = handlerName
 
-            LabeledRow("Priority:") {
-                LabeledRow("Priority:") {
-                    IntFieldWithSuggestions(
-                        state = priorityState,
-                        presets = priorityPresets,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-
-            CheckboxRow(
-                text = "suspend Handler",
-                checked = suspendHandler,
-                onCheckedChange = { suspendHandler = it }
+        if (name.isBlank()) {
+            return ValidationInfo(
+                "Handler name must not be empty.",
+                handlerNameField,
             )
         }
+
+        if (!Name.isValidIdentifier(name)) {
+            return ValidationInfo(
+                "Handler name must be a valid Kotlin function name.",
+                handlerNameField,
+            )
+        }
+
+        if (name in existingHandlerNames) {
+            return ValidationInfo(
+                "A function named '$name' already exists in this class.",
+                handlerNameField,
+            )
+        }
+
+        return null
     }
 
-    @Composable
-    private fun IntFieldWithSuggestions(
-        state: TextFieldState,
-        presets: List<PriorityPreset>,
-        modifier: Modifier = Modifier
+    enum class VelocitySubscribeOrderPreset(
+        val label: String,
+        val value: Int,
     ) {
-        var showSuggestions by remember { mutableStateOf(false) }
-        val focusManager = LocalFocusManager.current
+        FIRST("FIRST", Short.MAX_VALUE - 1),
+        EARLY("EARLY", Short.MAX_VALUE / 2),
+        NORMAL("NORMAL", 0),
+        LATE("LATE", Short.MIN_VALUE / 2),
+        LAST("LAST", Short.MIN_VALUE + 1);
 
-        Box(modifier = modifier) {
-            TextField(
-                state = state,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onFocusChanged { focusState ->
-                        showSuggestions = focusState.isFocused
-                    },
-                placeholder = { Text("e.g. 100") }
-            )
-
-            if (showSuggestions) {
-                Popup(
-                    onDismissRequest = { showSuggestions = false }
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .width(IntrinsicSize.Max)
-                            .background(
-                                JewelTheme.globalColors.panelBackground,
-                                RoundedCornerShape(4.dp)
-                            )
-                            .border(
-                                1.dp,
-                                JewelTheme.globalColors.borders.normal,
-                                RoundedCornerShape(4.dp)
-                            )
-                            .padding(4.dp)
-                    ) {
-                        presets.forEach { preset ->
-                            Text(
-                                text = preset.toString(),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        state.edit {
-                                            replace(0, length, preset.value.toString())
-                                        }
-                                        showSuggestions = false
-                                        focusManager.clearFocus()
-                                    }
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                            )
-                        }
-                    }
-                }
-            }
+        override fun toString(): String = buildString {
+            append(label)
+            append(" (")
+            append(value)
+            append(")")
         }
     }
-
-    override fun getPreferredFocusedComponent(): JComponent? = null
-
-    data class PriorityPreset(val label: String, val value: Int) {
-        override fun toString() = "$label ($value)"
-    }
-
-    val priorityPresets = listOf(
-        PriorityPreset("FIRST", Short.MAX_VALUE - 1),
-        PriorityPreset("EARLY", Short.MAX_VALUE / 2),
-        PriorityPreset("NORMAL", 0),
-        PriorityPreset("LATE", Short.MIN_VALUE / 2),
-        PriorityPreset("LAST", Short.MIN_VALUE + 1),
-    )
 }

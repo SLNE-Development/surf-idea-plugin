@@ -7,8 +7,4 @@ enum class PaperEventListenerPriorities {
     HIGH,
     HIGHEST,
     MONITOR;
-
-    companion object {
-        val names = entries.map { it.name }
-    }
 }

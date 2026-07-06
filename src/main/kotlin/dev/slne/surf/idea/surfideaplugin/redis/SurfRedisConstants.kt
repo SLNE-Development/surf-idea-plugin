@@ -4,4 +4,8 @@ object SurfRedisConstants {
     const val REDIS_REQUEST_HANDLER_PARAMETER_NAME = "context"
     const val REDIS_EVENT_HANDLER_PARAMETER_NAME = "event"
     const val RESPOND_METHOD_NAME = "respond"
+
+    const val PUBLISH_EVENT_METHOD_NAME = "publishEvent"
+    const val PUBLISH_METHOD_NAME = "publish"
+    const val SEND_REQUEST_METHOD_NAME = "sendRequest"
 }

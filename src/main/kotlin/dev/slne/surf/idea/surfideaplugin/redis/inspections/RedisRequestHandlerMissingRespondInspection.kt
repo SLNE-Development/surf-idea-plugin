@@ -5,8 +5,10 @@ import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.util.TextRange
-import dev.slne.surf.idea.surfideaplugin.common.util.hasAnnotation
-import dev.slne.surf.idea.surfideaplugin.redis.RedisFacetAwareKotlinApplicableInspectionBase
+import com.intellij.psi.PsiElement
+import dev.slne.surf.idea.surfideaplugin.common.inspection.SurfApplicableInspection
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
+import dev.slne.surf.idea.surfideaplugin.common.util.hasAnnotationPsi
 import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisClassNames
 import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisConstants
 import org.jetbrains.kotlin.analysis.api.KaSession
@@ -15,7 +17,8 @@ import org.jetbrains.kotlin.idea.codeinsights.impl.base.applicators.Applicabilit
 import org.jetbrains.kotlin.psi.*
 
 class RedisRequestHandlerMissingRespondInspection :
-    RedisFacetAwareKotlinApplicableInspectionBase<KtNamedFunction, Unit>() {
+    SurfApplicableInspection<KtNamedFunction, Unit>(SurfLibraryMarker.SURF_REDIS_API) {
+
     override fun buildVisitor(
         holder: ProblemsHolder,
         isOnTheFly: Boolean
@@ -23,48 +26,27 @@ class RedisRequestHandlerMissingRespondInspection :
         visitTargetElement(element, holder, isOnTheFly)
     }
 
-    override fun isApplicableByPsi(element: KtNamedFunction): Boolean {
-        return element.hasBlockBody() && element.valueParameters.size == 1
+    override fun isSurfApplicableByPsi(element: KtNamedFunction): Boolean {
+        if (!element.hasBlockBody()) return false
+        if (element.valueParameters.size != 1) return false
+
+        return element.hasAnnotationPsi(SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_FQN)
     }
 
     override fun KaSession.prepareContext(element: KtNamedFunction): Unit? {
-        val hasAnnotation = element.hasAnnotation(SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_ID)
-        if (!hasAnnotation) return null
+        val contextParameter = element.valueParameters.singleOrNull() ?: return null
 
-        val contextParam = element.valueParameters.firstOrNull() ?: return null
-        val paramType = contextParam.symbol.returnType as? KaClassType ?: return null
+        val paramType = contextParameter.symbol.returnType as? KaClassType ?: return null
         if (paramType.classId != SurfRedisClassNames.REQUEST_CONTEXT_CLASS_ID) return null
 
-        val contextName = contextParam.name ?: return null
-        if (hasRespondCall(element, contextName)) return null
+        val contextName = contextParameter.name ?: return null
+        val bodyExpression = element.bodyExpression ?: return null
+
+        if (bodyExpression.hasRespondCallOn(contextName)) {
+            return null
+        }
 
         return Unit
-    }
-
-    /**
-     * Checks if the given function contains a call to a specific method (respond method) on the provided context name.
-     *
-     * @param function The Kotlin `KtNamedFunction` to analyze for the method call.
-     * @param contextName The name of the context object to check for method calls on.
-     * @return `true` if the function contains a call to the respond method on the specified context name; `false` otherwise.
-     */
-    private fun hasRespondCall(function: KtNamedFunction, contextName: String): Boolean {
-        var found = false
-
-        function.bodyExpression?.accept(callExpressionRecursiveVisitor(fun(element) {
-            if (found) return
-
-            val callee = element.calleeExpression ?: return
-            if (callee.text != SurfRedisConstants.RESPOND_METHOD_NAME) return
-
-            val dotQualified = element.parent as? KtDotQualifiedExpression ?: return
-            val receiver = dotQualified.receiverExpression
-            if (receiver is KtNameReferenceExpression && receiver.getReferencedName() == contextName) {
-                found = true
-            }
-        }))
-
-        return found
     }
 
     override fun getApplicableRanges(element: KtNamedFunction): List<TextRange> {
@@ -77,12 +59,54 @@ class RedisRequestHandlerMissingRespondInspection :
         rangeInElement: TextRange?,
         onTheFly: Boolean
     ): ProblemDescriptor {
+        val functionName = element.name ?: "<anonymous>"
+
         return createProblemDescriptor(
             element,
             rangeInElement,
-            "@HandleRedisRequest handler '${element.name}' must call '${SurfRedisConstants.RESPOND_METHOD_NAME}(...)' on the RequestContext",
+            "@HandleRedisRequest handler '$functionName' must call '${SurfRedisConstants.RESPOND_METHOD_NAME}(...)' on the RequestContext.",
             ProblemHighlightType.GENERIC_ERROR,
             onTheFly,
         )
+    }
+
+    private fun KtExpression.hasRespondCallOn(
+        contextName: String,
+    ): Boolean {
+        var found = false
+
+        accept(object : KtTreeVisitorVoid() {
+            override fun visitElement(element: PsiElement) {
+                if (found) return
+                super.visitElement(element)
+            }
+
+            override fun visitDotQualifiedExpression(
+                expression: KtDotQualifiedExpression,
+            ) {
+                if (found) return
+
+                if (expression.isRespondCallOn(contextName)) {
+                    found = true
+                    return
+                }
+
+                super.visitDotQualifiedExpression(expression)
+            }
+        })
+
+        return found
+    }
+
+    private fun KtDotQualifiedExpression.isRespondCallOn(
+        contextName: String,
+    ): Boolean {
+        val receiver = receiverExpression as? KtNameReferenceExpression ?: return false
+        if (receiver.getReferencedName() != contextName) return false
+
+        val call = selectorExpression as? KtCallExpression ?: return false
+        val calleeName = call.calleeExpression?.text ?: return false
+
+        return calleeName == SurfRedisConstants.RESPOND_METHOD_NAME
     }
 }

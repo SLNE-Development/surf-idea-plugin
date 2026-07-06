@@ -6,6 +6,7 @@ import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiElement
 import com.intellij.util.concurrency.ThreadingAssertions
 import com.intellij.util.concurrency.annotations.RequiresReadLock
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
 import org.jetbrains.kotlin.idea.base.util.module
 
 object SurfLibraryDetector {
@@ -23,6 +24,40 @@ object SurfLibraryDetector {
     const val SURF_RABBITMQ_CLIENT_API = "dev.slne.surf.rabbitmq.api.ClientRabbitMQApi"
 
     @RequiresReadLock
+    fun hasLibrary(element: PsiElement, marker: SurfLibraryMarker): Boolean {
+        ThreadingAssertions.assertReadAccess()
+        val module = element.module ?: return false
+        return hasLibrary(module, marker)
+    }
+
+    @RequiresReadLock
+    fun hasLibrary(module: Module, marker: SurfLibraryMarker): Boolean {
+        ThreadingAssertions.assertReadAccess()
+        if (module.isDisposed) return false
+
+        val scope = module.getModuleWithDependenciesAndLibrariesScope(false)
+
+        return JavaPsiFacade
+            .getInstance(module.project)
+            .hasClass(marker.fqn, scope)
+    }
+
+    @RequiresReadLock
+    fun hasAllLibraries(module: Module, markers: Collection<SurfLibraryMarker>): Boolean {
+        return markers.all { hasLibrary(module, it) }
+    }
+
+    @RequiresReadLock
+    fun hasAllLibraries(module: Module, markers: Array<out SurfLibraryMarker>): Boolean {
+        return markers.all { hasLibrary(module, it) }
+    }
+
+    @RequiresReadLock
+    fun hasAnyLibrary(module: Module, markers: Collection<SurfLibraryMarker>): Boolean {
+        return markers.any { hasLibrary(module, it) }
+    }
+
+    @RequiresReadLock
     fun isClassInModuleClasspath(module: Module, fqn: String): Boolean {
         ThreadingAssertions.assertReadAccess()
         if (module.isDisposed) return false
@@ -35,38 +70,10 @@ object SurfLibraryDetector {
     suspend fun isClassInModuleClasspathSafe(module: Module, fqn: String) = readAction {
         isClassInModuleClasspath(module, fqn)
     }
-
-    fun hasSurfApiCore(module: Module) = isClassInModuleClasspath(module, SURF_API_CORE)
-    suspend fun hasSurfApiCoreSafe(module: Module) = isClassInModuleClasspathSafe(module, SURF_API_CORE)
-
-    fun hasSurfApiPaper(module: Module) = isClassInModuleClasspath(module, SURF_API_PAPER)
-    suspend fun hasSurfApiPaperSafe(module: Module) = isClassInModuleClasspathSafe(module, SURF_API_PAPER)
-
-    fun hasSurfApiVelocity(module: Module) = isClassInModuleClasspath(module, SURF_API_VELOCITY)
-    suspend fun hasSurfApiVelocitySafe(module: Module) = isClassInModuleClasspathSafe(module, SURF_API_VELOCITY)
-
-    fun hasSurfRedis(module: Module) = isClassInModuleClasspath(module, SURF_REDIS_API)
-    suspend fun hasSurfRedisSafe(module: Module) = isClassInModuleClasspathSafe(module, SURF_REDIS_API)
-
-    fun hasSurfRedis(psiElement: PsiElement): Boolean = hasSurfRedis(psiElement.module ?: return false)
-    suspend fun hasSurfRedisSafe(psiElement: PsiElement): Boolean = hasSurfRedisSafe(psiElement.module ?: return false)
-
-    fun hasSurfDatabase(module: Module) = isClassInModuleClasspath(module, SURF_DATABASE_API)
-    suspend fun hasSurfDatabaseSafe(module: Module) = isClassInModuleClasspathSafe(module, SURF_DATABASE_API)
-
-    fun hasSurfDatabase(psiElement: PsiElement): Boolean = hasSurfDatabase(psiElement.module ?: return false)
-    suspend fun hasSurfDatabaseSafe(psiElement: PsiElement): Boolean =
-        hasSurfDatabaseSafe(psiElement.module ?: return false)
-
-    fun hasSurfRabbitMqCommon(module: Module) = isClassInModuleClasspath(module, SURF_RABBITMQ_COMMON_API)
-    suspend fun hasSurfRabbitMqCommonSafe(module: Module) =
-        isClassInModuleClasspathSafe(module, SURF_RABBITMQ_COMMON_API)
-
-    fun hasSurfRabbitMqServer(module: Module) = isClassInModuleClasspath(module, SURF_RABBITMQ_SERVER_API)
-    suspend fun hasSurfRabbitMqServerSafe(module: Module) =
-        isClassInModuleClasspathSafe(module, SURF_RABBITMQ_SERVER_API)
-
-    fun hasSurfRabbitMqClient(module: Module) = isClassInModuleClasspath(module, SURF_RABBITMQ_CLIENT_API)
-    suspend fun hasSurfRabbitMqClientSafe(module: Module) =
-        isClassInModuleClasspathSafe(module, SURF_RABBITMQ_CLIENT_API)
 }
+
+@RequiresReadLock
+fun Module.hasLibrary(marker: SurfLibraryMarker): Boolean = SurfLibraryDetector.hasLibrary(this, marker)
+
+@RequiresReadLock
+fun PsiElement.hasModuleLibrary(marker: SurfLibraryMarker): Boolean = SurfLibraryDetector.hasLibrary(this, marker)

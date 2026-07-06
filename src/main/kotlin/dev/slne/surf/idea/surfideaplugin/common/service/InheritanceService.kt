@@ -4,12 +4,14 @@ import com.intellij.openapi.application.readAction
 import com.intellij.openapi.command.writeCommandAction
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.idea.compilerPlugin.parcelize.quickfixes.shortenReferences
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtPsiFactory
+import org.jetbrains.kotlin.utils.KotlinExceptionWithAttachments
 
 @Suppress("UnstableApiUsage")
 @Service(Service.Level.PROJECT)
@@ -40,8 +42,10 @@ class InheritanceService(
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
+            if (Logger.shouldRethrow(e)) throw e
+            throw KotlinExceptionWithAttachments("Unable to check if the class is an interface", e)
+                .withPsiAttachment("target.kt", target)
+                .withAttachment("interfaceId.txt", interfaceId)
         }
     }
 

@@ -5,7 +5,9 @@ import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.util.TextRange
-import dev.slne.surf.idea.surfideaplugin.surfapi.SurfApiFacetAwareKotlinApplicableInspectionBase
+import dev.slne.surf.idea.surfideaplugin.common.inspection.SurfApplicableInspection
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
+import dev.slne.surf.idea.surfideaplugin.surfapi.inspections.internalapi.InternalApiUsageInspection.Context
 import dev.slne.surf.idea.surfideaplugin.surfapi.service.internalApiService
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.symbols.KaDeclarationSymbol
@@ -15,7 +17,8 @@ import org.jetbrains.kotlin.psi.KtVisitor
 import org.jetbrains.kotlin.psi.referenceExpressionVisitor
 
 class InternalApiUsageInspection :
-    SurfApiFacetAwareKotlinApplicableInspectionBase<KtNameReferenceExpression, InternalApiUsageInspection.Context>() {
+    SurfApplicableInspection<KtNameReferenceExpression, Context>(SurfLibraryMarker.SURF_API_CORE) {
+
     data class Context(val symbolName: String)
 
     override fun buildVisitor(
@@ -27,16 +30,27 @@ class InternalApiUsageInspection :
         }
     }
 
+    override fun isSurfApplicableByPsi(element: KtNameReferenceExpression): Boolean {
+        return element.getReferencedName().isNotBlank()
+    }
+
     override fun KaSession.prepareContext(element: KtNameReferenceExpression): Context? {
-        val symbols = element.mainReference.resolveToSymbols()
-        if (symbols.isEmpty()) return null
+        val internalApiService = element.project.internalApiService()
 
-        val hasHidden = symbols.any { symbol ->
-            val declSymbol = symbol as? KaDeclarationSymbol ?: return@any false
-            internalApiService().isHiddenInternalApi(declSymbol, element)
+        val hasHiddenInternalApi = element.mainReference
+            .resolveToSymbols()
+            .asSequence()
+            .filterIsInstance<KaDeclarationSymbol>()
+            .any { symbol ->
+                internalApiService.isHiddenInternalApi(
+                    symbol = symbol,
+                    useSiteElement = element,
+                )
+            }
+
+        if (!hasHiddenInternalApi) {
+            return null
         }
-
-        if (!hasHidden) return null
 
         return Context(element.getReferencedName())
     }

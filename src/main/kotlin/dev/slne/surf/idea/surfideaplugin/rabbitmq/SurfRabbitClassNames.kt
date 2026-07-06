@@ -1,5 +1,6 @@
 package dev.slne.surf.idea.surfideaplugin.rabbitmq
 
+import com.squareup.kotlinpoet.ClassName
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 
@@ -22,4 +23,8 @@ object SurfRabbitClassNames {
     val RABBIT_PACKET_CLASS_ID = ClassId.topLevel(RABBIT_PACKET_CLASS_FQN)
     val RABBIT_HANDLER_ANNOTATION_ID = ClassId.topLevel(RABBIT_HANDLER_ANNOTATION_FQN)
     val CLIENT_RABBIT_MQ_API_CLASS_ID = ClassId.topLevel(CLIENT_RABBIT_MQ_API_CLASS_FQN)
+
+    val RABBIT_REQUEST_PACKET_CLASS_NAME = ClassName.bestGuess(RABBIT_REQUEST_PACKET_CLASS)
+    val RABBIT_RESPONSE_PACKET_CLASS_NAME = ClassName.bestGuess(RABBIT_RESPONSE_PACKET_CLASS)
+    val RABBIT_HANDLER_ANNOTATION_NAME = ClassName.bestGuess(RABBIT_HANDLER_ANNOTATION)
 }

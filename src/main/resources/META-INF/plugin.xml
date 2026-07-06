@@ -111,16 +111,6 @@
                 language="kotlin"
                 groupPath="Surf framework"
                 groupKey="inspection.redis.group.name"
-                shortName="RedisHandlerSuspendFunction"
-                enabledByDefault="true"
-                level="ERROR"
-                implementationClass="dev.slne.surf.idea.surfideaplugin.redis.inspections.RedisHandlerSuspendInspection"
-                key="inspection.redis.handler.suspend.function.display.name"
-        />
-        <localInspection
-                language="kotlin"
-                groupPath="Surf framework"
-                groupKey="inspection.redis.group.name"
                 shortName="RedisEventHandlerParameterInspection"
                 enabledByDefault="true"
                 level="ERROR"

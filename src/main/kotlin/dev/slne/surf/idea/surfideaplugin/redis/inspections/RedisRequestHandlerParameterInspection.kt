@@ -5,22 +5,24 @@ import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.util.TextRange
-import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
-import dev.slne.surf.idea.surfideaplugin.common.util.hasAnnotation
-import dev.slne.surf.idea.surfideaplugin.redis.RedisFacetAwareKotlinApplicableInspectionBase
+import dev.slne.surf.idea.surfideaplugin.common.inspection.SurfApplicableInspection
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
+import dev.slne.surf.idea.surfideaplugin.common.util.hasAnnotationPsi
+import dev.slne.surf.idea.surfideaplugin.common.util.shortNameString
 import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisClassNames
+import dev.slne.surf.idea.surfideaplugin.redis.inspections.RedisRequestHandlerParameterInspection.Context
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.types.KaClassType
-import org.jetbrains.kotlin.idea.base.psi.KotlinPsiHeuristics
 import org.jetbrains.kotlin.idea.codeinsight.api.applicators.ApplicabilityRange
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtVisitor
 import org.jetbrains.kotlin.psi.namedFunctionVisitor
 
 class RedisRequestHandlerParameterInspection :
-    RedisFacetAwareKotlinApplicableInspectionBase<KtNamedFunction, RedisRequestHandlerParameterInspection.Context>() {
+    SurfApplicableInspection<KtNamedFunction, Context>(SurfLibraryMarker.SURF_REDIS_API) {
+
     sealed interface Context {
-        data object WrongParameterCount : Context
+        data class WrongParameterCount(val actualCount: Int) : Context
         data object WrongParameterType : Context
     }
 
@@ -31,21 +33,25 @@ class RedisRequestHandlerParameterInspection :
         visitTargetElement(element, holder, isOnTheFly)
     }
 
+    override fun isSurfApplicableByPsi(element: KtNamedFunction): Boolean {
+        return element.hasAnnotationPsi(SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_FQN)
+    }
+
     override fun KaSession.prepareContext(element: KtNamedFunction): Context? {
-        val hasAnnotation = element.hasAnnotation(SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_ID)
-        if (!hasAnnotation) return null
-
         val valueParameters = element.valueParameters
-        if (valueParameters.size != 1) return Context.WrongParameterCount
+        if (valueParameters.size != 1) return Context.WrongParameterCount(valueParameters.size)
 
-        val paramType = valueParameters.first().symbol.returnType as? KaClassType ?: return Context.WrongParameterType
-        if (paramType.classId != SurfRedisClassNames.REQUEST_CONTEXT_CLASS_ID) return Context.WrongParameterType
+        val parameter = valueParameters.single()
+        val returnTypeClass = parameter.symbol.returnType as? KaClassType ?: return null
+        val isRequestContext = returnTypeClass.classId == SurfRedisClassNames.REQUEST_CONTEXT_CLASS_ID
+
+        if (!isRequestContext) return Context.WrongParameterType
 
         return null
     }
 
     override fun getApplicableRanges(element: KtNamedFunction): List<TextRange> {
-        return ApplicabilityRange.single(element) { it.valueParameterList }
+        return ApplicabilityRange.single(element) { it.valueParameterList ?: it.nameIdentifier ?: it }
     }
 
     override fun InspectionManager.createProblemDescriptor(
@@ -55,12 +61,20 @@ class RedisRequestHandlerParameterInspection :
         onTheFly: Boolean
     ): ProblemDescriptor {
         val message = when (context) {
-            is Context.WrongParameterCount ->
-                "@HandleRedisRequest handler must have exactly 1 parameter (RequestContext<T : RedisRequest>), " +
-                        "found ${element.valueParameters.size}"
+            is Context.WrongParameterCount -> buildString {
+                append("@")
+                append(SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_FQN.shortNameString())
+                append(" handler must have exactly 1 parameter (RequestContext<T : RedisRequest>),")
+                append(" but found ")
+                if (context.actualCount == 0) append("none") else append(context.actualCount)
+                append(" parameter(s)")
+            }
 
-            is Context.WrongParameterType ->
-                "Parameter of @HandleRedisRequest handler must be RequestContext<T : RedisRequest>"
+            Context.WrongParameterType -> buildString {
+                append("Parameter of @")
+                append(SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_FQN.shortNameString())
+                append(" handler must be RequestContext<T : RedisRequest>")
+            }
         }
 
         return createProblemDescriptor(

@@ -3,9 +3,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "2.3.0"
+    id("org.jetbrains.kotlin.jvm") version "2.3.21"
     id("org.jetbrains.intellij.platform") version "2.16.0"
-    id("org.jetbrains.kotlin.plugin.compose") version "2.3.0"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.3.21"
 }
 
 group = "dev.slne.surf.idea"
@@ -22,7 +22,7 @@ repositories {
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 dependencies {
     intellijPlatform {
-        intellijIdea("2026.1.1")
+        intellijIdea("2026.1.2")
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
 
         composeUI()
@@ -31,6 +31,8 @@ dependencies {
         pluginVerifier()
         zipSigner()
     }
+
+    implementation("com.squareup:kotlinpoet:2.3.0")
 }
 
 intellijPlatform {
