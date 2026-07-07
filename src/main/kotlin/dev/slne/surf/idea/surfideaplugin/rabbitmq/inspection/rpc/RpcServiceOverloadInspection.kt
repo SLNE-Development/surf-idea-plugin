@@ -28,7 +28,7 @@ class RpcServiceOverloadInspection : SurfKotlinInspection(SurfLibraryMarker.SURF
 
         val endpointsByName = klass.declarations
             .filterIsInstance<KtNamedFunction>()
-            .filter { it.name != null && it.name !in RpcServiceSuspendFunctionInspection.IGNORED_OBJECT_METHODS }
+            .filter { it.name != null && it.name !in RpcServiceSuspendFunctionInspection.Util.IGNORED_OBJECT_METHODS }
             .groupBy { it.name }
             .filterValues { it.size > 1 }
 
