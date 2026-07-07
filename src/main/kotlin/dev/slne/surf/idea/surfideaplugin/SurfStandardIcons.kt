@@ -6,4 +6,7 @@ import com.intellij.openapi.util.IconLoader
 object SurfStandardIcons {
     @JvmField
     val Publisher = IconLoader.getIcon("/icons/publisher.svg", javaClass)
+
+    @JvmField
+    val RpcService = IconLoader.getIcon("/icons/rpcService.svg", javaClass)
 }

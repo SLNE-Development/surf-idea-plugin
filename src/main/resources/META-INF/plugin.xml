@@ -334,9 +334,22 @@
                          implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.rpc.RpcServiceDefaultParameterInspection"
                          key="inspection.rabbit.rpc.service.default.parameter.display.name"
         />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.rpc.group.name"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         shortName="RpcServiceRegistrationType"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.rpc.RpcServiceRegistrationTypeInspection"
+                         key="inspection.rabbit.rpc.service.registration.type.display.name"
+        />
 
         <implicitUsageProvider
                 implementation="dev.slne.surf.idea.surfideaplugin.rabbitmq.references.RabbitHandlerImplicitUsageProvider"/>
+        <iconProvider order="first"
+                      implementation="dev.slne.surf.idea.surfideaplugin.rabbitmq.icons.RpcServiceIconProvider"/>
+        <generatedSourcesFilter
+                implementation="dev.slne.surf.idea.surfideaplugin.common.library.KspGeneratedSourcesFilter"/>
         <codeInsight.lineMarkerProvider language="kotlin"
                                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.markers.RabbitRequestHandlerClassLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="kotlin"

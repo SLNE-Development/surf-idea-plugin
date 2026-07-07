@@ -1,0 +1,18 @@
+<html>
+<body>
+Reports <code>registerRpcService</code>/<code>unregisterRpcService</code>/<code>createRpcService</code>
+calls whose service type argument is not a <code>@RpcService</code>-annotated interface.
+<p>
+    The RPC runtime resolves the generated service descriptor from the <code>Service</code> type
+    argument. When the implementation is passed without an explicit type argument, Kotlin infers
+    the <b>implementation class</b> — for which no descriptor exists — and the call fails at
+    runtime. Always specify the annotated interface explicitly.
+</p>
+<pre><code>
+serverApi.registerRpcService(UserServiceImpl())              // reported — infers UserServiceImpl
+serverApi.registerRpcService&lt;UserService&gt;(UserServiceImpl()) // OK
+clientApi.createRpcService&lt;UserService&gt;()                    // OK
+</code></pre>
+<p>The quick fix inserts the <code>@RpcService</code> interface implemented by the argument.</p>
+</body>
+</html>
