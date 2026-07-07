@@ -41,11 +41,6 @@ intellijPlatform {
             for the Surf ecosystem: surf-api, surf-redis, and surf-database-r2dbc.
         """.trimIndent()
 
-
-        ideaVersion {
-            sinceBuild = "262.8665.81"
-        }
-
         changeNotes = """
             Initial version
         """.trimIndent()
