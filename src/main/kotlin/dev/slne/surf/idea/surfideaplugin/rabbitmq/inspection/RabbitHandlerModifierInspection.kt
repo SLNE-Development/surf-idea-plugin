@@ -6,7 +6,8 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.util.TextRange
 import dev.slne.surf.idea.surfideaplugin.common.quickfix.ChangeModifierFix
-import dev.slne.surf.idea.surfideaplugin.rabbitmq.RabbitFacetAwareKotlinApplicableInspectionBase
+import dev.slne.surf.idea.surfideaplugin.common.inspection.SurfApplicableInspection
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.util.isRabbitHandler
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.util.isRabbitHandlerPsi
 import org.jetbrains.kotlin.analysis.api.KaSession
@@ -18,7 +19,7 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtVisitor
 import org.jetbrains.kotlin.psi.namedFunctionVisitor
 
-class RabbitHandlerModifierInspection : RabbitFacetAwareKotlinApplicableInspectionBase<KtNamedFunction, Unit>() {
+class RabbitHandlerModifierInspection : SurfApplicableInspection<KtNamedFunction, Unit>(SurfLibraryMarker.SURF_RABBITMQ_SERVER_API) {
     private val forbiddenModifier = setOf(
         KtTokens.ABSTRACT_KEYWORD,
         KtTokens.OPEN_KEYWORD,

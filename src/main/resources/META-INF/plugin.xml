@@ -7,26 +7,23 @@
         <p>
             The <b>Surf Framework</b> plugin adds first-class IntelliJ IDEA support for the
             <a href="https://github.com/SLNE-Development/">Surf ecosystem</a>, covering
-            <b>surf-api</b>, <b>surf-redis</b>, and <b>surf-database-r2dbc</b>.
+            <b>surf-api</b>, <b>surf-redis</b>, and <b>surf-rabbitmq</b>.
         </p>
 
         <h3>Features</h3>
         <ul>
-            <li><b>Inspections &amp; quick-fixes</b> — Validates handler signatures, annotations,
-                serialization requirements, naming conventions, and more with actionable fixes.</li>
-            <li><b>Code generation</b> — Generate Paper/Velocity event listeners and Redis
-                event/request handlers from the <em>Generate</em> menu.</li>
-            <li><b>Line markers</b> — Gutter icons for Redis event handlers, event classes, and
-                publish calls for quick navigation between related symbols.</li>
-            <li><b>Postfix templates</b> — Surf-Redis postfix completions for common patterns.</li>
-            <li><b>Inlay hints</b> — Displays resolved Redis key prefixes for sync structure
-                declarations.</li>
-            <li><b>Framework detection</b> — Automatically detects Surf libraries on the classpath
-                and activates relevant features via facets.</li>
+            <li><b>Inspections &amp; quick-fixes</b> — Validates handler signatures, RPC service
+                contracts, annotations, serialization requirements, naming conventions, and more
+                with actionable fixes.</li>
+            <li><b>Code generation</b> — Generate Paper/Velocity event listeners, Redis
+                event/request handlers, and RabbitMQ packets/handlers from the <em>Generate</em>
+                and <em>New</em> menus.</li>
+            <li><b>Line markers</b> — Gutter icons for Redis and RabbitMQ handlers, event classes,
+                and publish/send calls for quick navigation between related symbols.</li>
+            <li><b>Framework detection</b> — Automatically detects Surf libraries on the module
+                classpath and activates the relevant features, no setup required.</li>
             <li><b>Internal API gating</b> — Flags usage of <code>@InternalAPIMarker</code>-annotated
                 symbols from library dependencies as errors.</li>
-            <li><b>Tool window</b> — A dedicated Surf Redis tool window for an overview of
-                registered handlers and events.</li>
         </ul>
 
         <h3>Supported Frameworks</h3>
@@ -34,29 +31,20 @@
             <li><b>surf-api</b> — Paper, Velocity, and Core platform support.</li>
             <li><b>surf-redis</b> — Annotation-driven Redis event and request/response handler
                 pattern (<code>@OnRedisEvent</code>, <code>@HandleRedisRequest</code>).</li>
-            <li><b>surf-database-r2dbc</b> — Transaction context inspections.</li>
+            <li><b>surf-rabbitmq</b> — Packet-based messaging (<code>@RabbitHandler</code>) and the
+                <code>@RpcService</code>-based RPC system.</li>
         </ul>
 
         <p><em>Requires Kotlin K2 mode.</em></p>
     ]]></description>
 
-    <depends>com.intellij.modules.compose</depends>
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.kotlin</depends>
 
     <resource-bundle>messages.SurfBundle</resource-bundle>
 
-    <projectListeners>
-        <listener
-                class="dev.slne.surf.idea.surfideaplugin.common.facet.SurfFacetSyncListener"
-                topic="com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener"
-        />
-    </projectListeners>
-
     <extensions defaultExtensionNs="com.intellij">
         <!-- Surf-API -->
-        <facetType implementation="dev.slne.surf.idea.surfideaplugin.surfapi.facet.SurfApiFacetType"/>
-
         <localInspection
                 language="kotlin"
                 groupPath="Surf framework"
@@ -77,6 +65,34 @@
                          key="inspection.surfapi.internal.api.usage.display.name"
         />
 
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfapi.group.name"
+                         shortName="SurfEventHandlerParameter"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.inspections.event.SurfEventHandlerParameterInspection"
+                         key="inspection.surfapi.event.handler.parameter.display.name"
+        />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfapi.group.name"
+                         shortName="SurfEventHandlerSuspend"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.inspections.event.SurfEventHandlerSuspendInspection"
+                         key="inspection.surfapi.event.handler.suspend.display.name"
+        />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfapi.group.name"
+                         shortName="SurfComponentMissingMeta"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.inspections.component.SurfComponentMissingMetaInspection"
+                         key="inspection.surfapi.component.missing.meta.display.name"
+        />
+
         <completion.contributor language="kotlin"
                                 order="first,before KotlinCompletionContributor"
                                 implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.completion.InternalApiCompletionContributor"/>
@@ -85,18 +101,8 @@
         />
         <implicitUsageProvider
                 implementation="dev.slne.surf.idea.surfideaplugin.surfapi.paper.references.PaperEventHandlerImplicitUsageProvider"/>
-        <lang.inspectionSuppressor language="kotlin"
-                                   implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.velocity.references.VelocityEventHandlerInspectionSuppressor"
-        />
-        <lang.inspectionSuppressor language="kotlin"
-                                   implementationClass="dev.slne.surf.idea.surfideaplugin.surfapi.paper.references.PaperEventHandlerInspectionSuppressor"/>
 
         <!-- Surf-Redis -->
-        <facetType implementation="dev.slne.surf.idea.surfideaplugin.redis.facet.SurfRedisFacetType"/>
-
-        <postStartupActivity implementation="dev.slne.surf.idea.surfideaplugin.common.facet.SurfFacetSetupActivity"/>
-
-
         <localInspection
                 language="kotlin"
                 groupPath="Surf framework"
@@ -180,37 +186,26 @@
                          implementationClass="dev.slne.surf.idea.surfideaplugin.redis.inspections.RedisHandlerReturnTypeInspection"
                          key="inspection.redis.handler.return.type.display.name"
         />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.redis.group.name"
+                         shortName="RedisEventHandlerAbstractEvent"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.inspections.RedisEventHandlerAbstractEventInspection"
+                         key="inspection.redis.event.handler.abstract.event.display.name"
+        />
 
         <implicitUsageProvider
                 implementation="dev.slne.surf.idea.surfideaplugin.redis.references.RedisEventHandlerImplicitUsageProvider"/>
-        <lang.inspectionSuppressor language="kotlin"
-                                   implementationClass="dev.slne.surf.idea.surfideaplugin.redis.references.RedisEventHandlerInspectionSuppressor"/>
         <codeInsight.lineMarkerProvider language="kotlin"
                                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.makers.RedisEventHandlerLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="kotlin"
                                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.makers.RedisEventClassLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="kotlin"
                                         implementationClass="dev.slne.surf.idea.surfideaplugin.redis.makers.RedisPublishCallLineMarkerProvider"/>
-        <codeInsight.template.postfixTemplateProvider language="kotlin"
-                                                      implementationClass="dev.slne.surf.idea.surfideaplugin.redis.postfix.SurfRedisPostfixTemplateProvider"/>
-        <codeInsight.declarativeInlayProvider group="OTHER_GROUP"
-                                              implementationClass="dev.slne.surf.idea.surfideaplugin.redis.hints.SurfRedisSyncKeyInlayHintsProvider"
-                                              isEnabledByDefault="true"
-                                              language="kotlin"
-                                              nameKey="inlay.hints.redis.sync.id.name"
-                                              descriptionKey="inlay.hints.redis.sync.id.description"
-                                              providerId="surf.redis.sync.structure.id.inlay.hints"
-        />
-        <codeInsight.parameterNameHintsSuppressor
-                implementation="dev.slne.surf.idea.surfideaplugin.redis.hints.SurfRedisSyncParameterHintsSuppressor"/>
-        <facet.toolWindow facetIdList="surf-redis"
-                          factoryClass="dev.slne.surf.idea.surfideaplugin.redis.toolwindow.SurfRedisToolWindowFactory"
-                          id="SurfRedis"
-                          anchor="right"
-                          icon="AllIcons.Toolwindows.ToolWindowPalette"
-        />
 
-        <!-- Surf Rabbit -->
+        <!-- Surf-RabbitMQ -->
         <localInspection language="kotlin"
                          groupPath="Surf framework"
                          groupKey="inspection.surfrabbit.group.name"
@@ -274,9 +269,74 @@
                          implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.RabbitHandlerMissingRespondInspection"
                          key="inspection.rabbit.handler.missing.respond.inspection.display.name"
         />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.group.name"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         shortName="RabbitHandlerDuplicate"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.RabbitHandlerDuplicateInspection"
+                         key="inspection.rabbit.handler.duplicate.display.name"
+        />
 
+        <!-- Surf-RabbitMQ RPC -->
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.rpc.group.name"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         shortName="RpcServiceMustBeInterface"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.rpc.RpcServiceMustBeInterfaceInspection"
+                         key="inspection.rabbit.rpc.service.must.be.interface.display.name"
+        />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.rpc.group.name"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         shortName="RpcServiceTypeParameter"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.rpc.RpcServiceTypeParameterInspection"
+                         key="inspection.rabbit.rpc.service.type.parameter.display.name"
+        />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.rpc.group.name"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         shortName="RpcServiceProperty"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.rpc.RpcServicePropertyInspection"
+                         key="inspection.rabbit.rpc.service.property.display.name"
+        />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.rpc.group.name"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         shortName="RpcServiceSuspendFunction"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.rpc.RpcServiceSuspendFunctionInspection"
+                         key="inspection.rabbit.rpc.service.suspend.function.display.name"
+        />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.rpc.group.name"
+                         enabledByDefault="true"
+                         level="ERROR"
+                         shortName="RpcServiceOverload"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.rpc.RpcServiceOverloadInspection"
+                         key="inspection.rabbit.rpc.service.overload.display.name"
+        />
+        <localInspection language="kotlin"
+                         groupPath="Surf framework"
+                         groupKey="inspection.surfrabbit.rpc.group.name"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         shortName="RpcServiceDefaultParameter"
+                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.inspection.rpc.RpcServiceDefaultParameterInspection"
+                         key="inspection.rabbit.rpc.service.default.parameter.display.name"
+        />
 
-        <facetType implementation="dev.slne.surf.idea.surfideaplugin.rabbitmq.facet.SurfRabbitFacetType"/>
+        <implicitUsageProvider
+                implementation="dev.slne.surf.idea.surfideaplugin.rabbitmq.references.RabbitHandlerImplicitUsageProvider"/>
         <codeInsight.lineMarkerProvider language="kotlin"
                                         implementationClass="dev.slne.surf.idea.surfideaplugin.rabbitmq.markers.RabbitRequestHandlerClassLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="kotlin"
@@ -321,7 +381,7 @@
             <add-to-group group-id="GenerateGroup" anchor="last"/>
         </action>
 
-        <!-- Surf Rabbit -->
+        <!-- Surf-RabbitMQ -->
         <action id="dev.slne.surf.idea.surfideaplugin.rabbitmq.generation.GenerateRabbitRequestHandlerCodeInsightAction"
                 class="dev.slne.surf.idea.surfideaplugin.rabbitmq.generation.GenerateRabbitRequestHandlerCodeInsightAction"
                 text="Generate RabbitMQ Request Handler">

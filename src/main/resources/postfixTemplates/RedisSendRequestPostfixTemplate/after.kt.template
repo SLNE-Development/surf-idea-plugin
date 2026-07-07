@@ -1,3 +1,0 @@
-fun example(request: GetPlayerDataRequest) {
-    <spot>redisApi.sendRequest<PlayerDataResponse>(request)</spot>
-}

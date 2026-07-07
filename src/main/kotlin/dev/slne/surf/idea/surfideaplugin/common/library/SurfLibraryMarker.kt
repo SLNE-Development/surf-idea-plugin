@@ -7,8 +7,6 @@ enum class SurfLibraryMarker(val fqn: String) {
 
     SURF_REDIS_API("dev.slne.surf.redis.RedisApi"),
 
-    SURF_DATABASE_API("dev.slne.surf.database.DatabaseApi"),
-
     SURF_RABBITMQ_COMMON_API("dev.slne.surf.rabbitmq.api.RabbitMQApi"),
     SURF_RABBITMQ_SERVER_API("dev.slne.surf.rabbitmq.api.ServerRabbitMQApi"),
     SURF_RABBITMQ_CLIENT_API("dev.slne.surf.rabbitmq.api.ClientRabbitMQApi"),

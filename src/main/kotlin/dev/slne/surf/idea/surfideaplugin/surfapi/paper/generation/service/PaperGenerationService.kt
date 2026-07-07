@@ -19,14 +19,12 @@ import com.intellij.refactoring.RefactoringBundle
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.TypeName
-import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
-import dev.slne.surf.idea.surfideaplugin.common.facet.hasLibrary
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryDetector
+import dev.slne.surf.idea.surfideaplugin.common.library.hasLibrary
 import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
 import dev.slne.surf.idea.surfideaplugin.common.service.inheritanceService
 import dev.slne.surf.idea.surfideaplugin.surfapi.paper.PaperClassNames
 import dev.slne.surf.idea.surfideaplugin.surfapi.paper.util.PaperEventListenerPriorities
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.jetbrains.kotlin.idea.base.util.module
 import org.jetbrains.kotlin.idea.core.insertMembersAfterAndReformat
 import org.jetbrains.kotlin.psi.KtClassOrObject
@@ -39,7 +37,6 @@ import org.jetbrains.kotlin.utils.addToStdlib.lastIsInstanceOrNull
 @Service(Service.Level.PROJECT)
 class PaperGenerationService(
     private val project: Project,
-    private val scope: CoroutineScope
 ) {
 
     companion object {
@@ -58,7 +55,7 @@ class PaperGenerationService(
             return false
         }
 
-        if (!SurfLibraryDetector.isClassInModuleClasspath(module, PaperClassNames.EVENT_CLASS)) {
+        if (!SurfLibraryDetector.hasClass(module, PaperClassNames.EVENT_CLASS)) {
             return false
         }
 
@@ -161,9 +158,7 @@ class PaperGenerationService(
             )
             .toString()
 
-        scope.launch {
-            project.inheritanceService().implementInterfaceIfMissing(targetClass, PaperClassNames.LISTENER_CLASS_ID)
-        }
+        project.inheritanceService().implementInterfaceIfMissing(targetClass, PaperClassNames.LISTENER_CLASS_ID)
 
         writeCommandAction(project, "Generate Paper Event Listener") {
             val factory = KtPsiFactory(project)

@@ -35,7 +35,7 @@ class RedisHandlerReturnTypeInspection :
         visitTargetElement(element, holder, isOnTheFly)
     }
 
-    override fun isSurfApplicableByPsi(element: KtNamedFunction): Boolean {
+    override fun isApplicableByPsi(element: KtNamedFunction): Boolean {
         val typeReference = element.typeReference ?: return false
         return typeReference.text != StandardClassIds.Unit.shortClassName.asString()
     }

@@ -1,0 +1,17 @@
+<html>
+<body>
+Reports <code>@RabbitHandler</code> functions whose signature does not match the handler contract.
+<p>
+    A Rabbit handler must declare exactly one parameter, and its type must be a subclass of
+    <code>RabbitRequestPacket</code>. Handlers with a different signature are rejected when the
+    containing instance is registered.
+</p>
+<pre><code>
+@RabbitHandler
+suspend fun handle(request: MyRequestPacket) { ... }   // OK
+
+@RabbitHandler
+suspend fun handle(name: String) { ... }               // reported
+</code></pre>
+</body>
+</html>

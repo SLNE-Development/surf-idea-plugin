@@ -18,7 +18,8 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
-import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
+import dev.slne.surf.idea.surfideaplugin.common.library.hasLibrary
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
 import dev.slne.surf.idea.surfideaplugin.common.util.getDestructuringParamNames
 import dev.slne.surf.idea.surfideaplugin.common.util.isConcreteClass
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.SurfRabbitClassNames
@@ -130,7 +131,7 @@ class NewRabbitHandlerAction : CreateInDirectoryActionBase(
     override fun isAvailable(dataContext: DataContext): Boolean {
         if (!super.isAvailable(dataContext)) return false
         val module = dataContext.getData(PlatformCoreDataKeys.MODULE) ?: return false
-        return SurfLibraryDetector.hasSurfRabbitMqServer(module)
+        return module.hasLibrary(SurfLibraryMarker.SURF_RABBITMQ_SERVER_API)
     }
 
     override fun startInWriteAction(): Boolean = false

@@ -2,7 +2,7 @@ package dev.slne.surf.idea.surfideaplugin.common.inspection
 
 import com.intellij.openapi.module.Module
 import com.intellij.psi.PsiFile
-import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryDetector
 import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
 import org.jetbrains.annotations.MustBeInvokedByOverriders
 import org.jetbrains.kotlin.idea.base.util.module

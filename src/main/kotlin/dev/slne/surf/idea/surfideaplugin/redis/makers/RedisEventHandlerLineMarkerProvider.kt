@@ -3,7 +3,7 @@ package dev.slne.surf.idea.surfideaplugin.redis.makers
 import com.intellij.codeInsight.daemon.GutterName
 import com.intellij.codeInsight.daemon.LineMarkerInfo
 import com.intellij.codeInsight.daemon.LineMarkerProviderDescriptor
-import com.intellij.java.ultimate.icons.JavaUltimateIcons
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.psi.PsiElement
 import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisClassNames
@@ -22,7 +22,7 @@ class RedisEventHandlerLineMarkerProvider : LineMarkerProviderDescriptor() {
     }
 
     override fun getIcon(): Icon {
-        return JavaUltimateIcons.Cdi.Listener
+        return AllIcons.Gutter.ExtAnnotation
     }
 
     override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*>? {

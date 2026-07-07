@@ -1,0 +1,17 @@
+<html>
+<body>
+Reports <code>@SurfEventHandler</code> functions whose signature does not match the handler contract.
+<p>
+    A Surf event handler must declare exactly one parameter, and its type must be a subclass of
+    <code>SurfEvent</code> (<code>SurfSyncEvent</code> or <code>SurfAsyncEvent</code>). Handlers
+    with a different signature are rejected when the listener is registered.
+</p>
+<pre><code>
+@SurfEventHandler
+fun onPlayerJoin(event: PlayerJoinedEvent) { ... }   // OK
+
+@SurfEventHandler
+fun onPlayerJoin(name: String) { ... }               // reported
+</code></pre>
+</body>
+</html>

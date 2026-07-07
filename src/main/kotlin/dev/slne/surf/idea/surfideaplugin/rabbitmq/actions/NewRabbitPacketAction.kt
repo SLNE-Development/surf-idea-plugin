@@ -1,6 +1,5 @@
 package dev.slne.surf.idea.surfideaplugin.rabbitmq.actions
 
-import com.intellij.facet.FacetManager
 import com.intellij.icons.AllIcons
 import com.intellij.ide.actions.CreateFileFromTemplateAction
 import com.intellij.ide.actions.CreateFileFromTemplateDialog
@@ -10,11 +9,11 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.PlatformCoreDataKeys
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.module.ModuleUtilCore
-import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiFile
-import dev.slne.surf.idea.surfideaplugin.rabbitmq.facet.SurfRabbitFacetType
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
+import dev.slne.surf.idea.surfideaplugin.common.library.hasLibrary
 
 
 class NewRabbitPacketAction : CreateFileFromTemplateAction() {
@@ -154,7 +153,7 @@ class NewRabbitPacketAction : CreateFileFromTemplateAction() {
     override fun isAvailable(dataContext: DataContext): Boolean {
         if (!super.isAvailable(dataContext)) return false
         val module = dataContext.getData(PlatformCoreDataKeys.MODULE) ?: return false
-        return FacetManager.getInstance(module).getFacetByType(SurfRabbitFacetType.ID) != null
+        return module.hasLibrary(SurfLibraryMarker.SURF_RABBITMQ_COMMON_API)
     }
 
     companion object {

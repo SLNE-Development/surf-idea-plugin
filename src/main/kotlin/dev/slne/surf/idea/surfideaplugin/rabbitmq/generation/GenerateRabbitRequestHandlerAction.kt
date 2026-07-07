@@ -16,7 +16,8 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.InheritanceUtil
 import com.intellij.refactoring.RefactoringBundle
-import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
+import dev.slne.surf.idea.surfideaplugin.common.library.hasLibrary
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
 import dev.slne.surf.idea.surfideaplugin.common.util.findInsertOffset
 import dev.slne.surf.idea.surfideaplugin.common.util.getDestructuringParamNames
 import dev.slne.surf.idea.surfideaplugin.common.util.isConcreteClass
@@ -36,7 +37,7 @@ class GenerateRabbitRequestHandlerAction : CodeInsightActionHandler {
         psiFile: PsiFile
     ) {
         val module = psiFile.module ?: return
-        if (!SurfLibraryDetector.hasSurfRabbitMqServer(module)) return
+        if (!module.hasLibrary(SurfLibraryMarker.SURF_RABBITMQ_SERVER_API)) return
         val caretElement = psiFile.findElementAt(editor.caretModel.offset) ?: return
         val targetClass = caretElement.getParentOfType<KtClassOrObject>(strict = false) ?: return
 

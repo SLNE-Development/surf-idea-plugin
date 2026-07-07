@@ -21,9 +21,9 @@ import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
-import dev.slne.surf.idea.surfideaplugin.common.facet.hasLibrary
-import dev.slne.surf.idea.surfideaplugin.common.facet.hasModuleLibrary
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryDetector
+import dev.slne.surf.idea.surfideaplugin.common.library.hasLibrary
+import dev.slne.surf.idea.surfideaplugin.common.library.hasModuleLibrary
 import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
 import dev.slne.surf.idea.surfideaplugin.surfapi.velocity.VelocityClassNames
 import org.jetbrains.kotlin.idea.base.util.module
@@ -58,7 +58,7 @@ class VelocityGenerationService(
             return null
         }
 
-        if (!SurfLibraryDetector.isClassInModuleClasspath(module, VelocityClassNames.SUBSCRIBE_ANNOTATION)) {
+        if (!SurfLibraryDetector.hasClass(module, VelocityClassNames.SUBSCRIBE_ANNOTATION)) {
             return null
         }
 

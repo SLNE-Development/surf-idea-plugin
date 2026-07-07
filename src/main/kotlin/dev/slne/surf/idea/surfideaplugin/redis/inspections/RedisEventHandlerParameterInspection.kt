@@ -35,7 +35,7 @@ class RedisEventHandlerParameterInspection :
         visitTargetElement(element, holder, isOnTheFly)
     }
 
-    override fun isSurfApplicableByPsi(element: KtNamedFunction): Boolean {
+    override fun isApplicableByPsi(element: KtNamedFunction): Boolean {
         return element.hasAnnotationPsi(SurfRedisClassNames.ON_REDIS_EVENT_ANNOTATION_FQN)
     }
 

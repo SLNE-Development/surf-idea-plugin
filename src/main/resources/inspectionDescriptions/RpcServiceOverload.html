@@ -1,0 +1,17 @@
+<html>
+<body>
+Reports overloaded functions in <code>@RpcService</code> interfaces.
+<p>
+    RPC callables are addressed by their function name. Two endpoints with the same name cannot be
+    distinguished on the wire, so method overloading is not supported and rejected by the RPC code
+    generator. Rename one of the functions.
+</p>
+<pre><code>
+@RpcService
+interface PlayerService {
+    suspend fun find(id: Long): Player
+    suspend fun find(name: String): Player   // reported
+}
+</code></pre>
+</body>
+</html>

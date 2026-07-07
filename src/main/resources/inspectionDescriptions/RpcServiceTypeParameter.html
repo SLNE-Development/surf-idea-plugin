@@ -1,0 +1,19 @@
+<html>
+<body>
+Reports type parameters on <code>@RpcService</code> interfaces or their functions.
+<p>
+    RPC descriptors are generated at compile time and arguments are serialized per declared type.
+    Generic services and generic endpoint functions cannot be represented on the wire and are
+    rejected by the RPC code generator.
+</p>
+<pre><code>
+@RpcService
+interface CacheService&lt;T&gt; { ... }              // reported
+
+@RpcService
+interface LookupService {
+    suspend fun &lt;T&gt; find(key: String): T       // reported
+}
+</code></pre>
+</body>
+</html>

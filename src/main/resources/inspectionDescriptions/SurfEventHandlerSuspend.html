@@ -1,0 +1,18 @@
+<html>
+<body>
+Reports <code>suspend</code> <code>@SurfEventHandler</code> functions that handle a
+<code>SurfSyncEvent</code>.
+<p>
+    Sync events are dispatched synchronously; their handlers must not be <code>suspend</code> and
+    are rejected at registration. Handlers for <code>SurfAsyncEvent</code> may be
+    <code>suspend</code>.
+</p>
+<pre><code>
+@SurfEventHandler
+suspend fun onSync(event: MySyncEvent) { ... }    // reported — remove 'suspend'
+
+@SurfEventHandler
+suspend fun onAsync(event: MyAsyncEvent) { ... }  // OK
+</code></pre>
+</body>
+</html>

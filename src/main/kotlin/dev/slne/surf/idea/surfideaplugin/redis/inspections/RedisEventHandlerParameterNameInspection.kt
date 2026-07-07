@@ -37,7 +37,7 @@ class RedisEventHandlerParameterNameInspection :
         return ApplicabilityRanges.declarationName(element)
     }
 
-    override fun isSurfApplicableByPsi(element: KtParameter): Boolean {
+    override fun isApplicableByPsi(element: KtParameter): Boolean {
         val ownerFunction = element.ownerFunction as? KtNamedFunction ?: return false
 
         if (!ownerFunction.hasAnnotationPsi(SurfRedisClassNames.ON_REDIS_EVENT_ANNOTATION_FQN)) {

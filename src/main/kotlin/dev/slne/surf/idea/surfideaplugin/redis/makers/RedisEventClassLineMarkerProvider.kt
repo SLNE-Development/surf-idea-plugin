@@ -5,9 +5,10 @@ import com.intellij.codeInsight.daemon.LineMarkerInfo
 import com.intellij.codeInsight.daemon.LineMarkerProviderDescriptor
 import com.intellij.codeInsight.navigation.NavigationGutterIconBuilder
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi.PsiElement
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
+import dev.slne.surf.idea.surfideaplugin.common.library.hasLibrary
 import dev.slne.surf.idea.surfideaplugin.redis.services.navigation.redisHandlerNavigationService
 import org.jetbrains.kotlin.idea.base.util.module
 import org.jetbrains.kotlin.psi.KtClass
@@ -25,7 +26,6 @@ class RedisEventClassLineMarkerProvider : LineMarkerProviderDescriptor() {
             return
         }
 
-        val redisAvailability = mutableMapOf<Module, Boolean>()
         val navigationService = project.redisHandlerNavigationService()
 
         for (element in elements) {
@@ -39,7 +39,7 @@ class RedisEventClassLineMarkerProvider : LineMarkerProviderDescriptor() {
 
             val module = ktClass.module ?: continue
 
-            if (!module.hasSurfRedis(redisAvailability)) {
+            if (!module.hasLibrary(SurfLibraryMarker.SURF_REDIS_API)) {
                 continue
             }
 

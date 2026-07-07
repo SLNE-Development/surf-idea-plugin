@@ -5,7 +5,8 @@ import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.util.TextRange
-import dev.slne.surf.idea.surfideaplugin.rabbitmq.RabbitFacetAwareKotlinApplicableInspectionBase
+import dev.slne.surf.idea.surfideaplugin.common.inspection.SurfApplicableInspection
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.SurfRabbitConstants
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.util.isRabbitHandler
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.util.isRabbitHandlerPsi
@@ -15,7 +16,7 @@ import org.jetbrains.kotlin.idea.codeinsight.api.applicable.asUnit
 import org.jetbrains.kotlin.idea.codeinsights.impl.base.applicators.ApplicabilityRanges
 import org.jetbrains.kotlin.psi.*
 
-class RabbitHandlerMissingRespondInspection : RabbitFacetAwareKotlinApplicableInspectionBase<KtNamedFunction, Unit>() {
+class RabbitHandlerMissingRespondInspection : SurfApplicableInspection<KtNamedFunction, Unit>(SurfLibraryMarker.SURF_RABBITMQ_SERVER_API) {
     override fun buildVisitor(
         holder: ProblemsHolder,
         isOnTheFly: Boolean

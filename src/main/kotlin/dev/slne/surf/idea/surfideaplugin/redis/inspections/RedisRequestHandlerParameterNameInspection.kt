@@ -29,7 +29,7 @@ class RedisRequestHandlerParameterNameInspection :
         visitTargetElement(element, holder, isOnTheFly)
     }
 
-    override fun isSurfApplicableByPsi(
+    override fun isApplicableByPsi(
         element: KtParameter,
     ): Boolean {
         if (element.nameIdentifier == null) return false

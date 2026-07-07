@@ -1,0 +1,19 @@
+<html>
+<body>
+Reports <code>@RpcService</code> annotations on declarations that are not interfaces.
+<p>
+    The RPC code generator only processes interfaces: it generates a service descriptor and a client
+    implementation from the interface contract. Classes, objects, enums, and annotation classes
+    annotated with <code>@RpcService</code> fail the build.
+</p>
+<pre><code>
+@RpcService
+interface AccountService {          // OK
+    suspend fun balance(id: Long): Long
+}
+
+@RpcService
+class AccountServiceImpl { ... }    // reported: not an interface
+</code></pre>
+</body>
+</html>

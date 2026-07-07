@@ -26,7 +26,7 @@ class RedisRequestHandlerMissingRespondInspection :
         visitTargetElement(element, holder, isOnTheFly)
     }
 
-    override fun isSurfApplicableByPsi(element: KtNamedFunction): Boolean {
+    override fun isApplicableByPsi(element: KtNamedFunction): Boolean {
         if (!element.hasBlockBody()) return false
         if (element.valueParameters.size != 1) return false
 

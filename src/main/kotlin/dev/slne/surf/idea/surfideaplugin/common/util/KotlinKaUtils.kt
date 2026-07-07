@@ -38,7 +38,7 @@ fun KaCallableSymbol.hasAnyAnnotation(annotations: FqClassNameSet): Boolean {
 }
 
 context(_: KaSession)
-fun KtClass.hasAnnotation(annotationId: ClassId): Boolean {
+fun KtClassOrObject.hasAnnotation(annotationId: ClassId): Boolean {
     return symbol.annotations.any { it.classId == annotationId }
 }
 

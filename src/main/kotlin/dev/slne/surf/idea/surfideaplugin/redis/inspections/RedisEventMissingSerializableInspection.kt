@@ -41,7 +41,7 @@ class RedisEventMissingSerializableInspection :
         visitTargetElement(element, holder, isOnTheFly)
     }
 
-    override fun isSurfApplicableByPsi(element: KtClass): Boolean {
+    override fun isApplicableByPsi(element: KtClass): Boolean {
         if (element.nameIdentifier == null) return false
         return !element.hasAnnotationPsi(SurfCommonClassNames.KOTLINX_SERIALIZABLE_ANNOTATION_FQN)
     }

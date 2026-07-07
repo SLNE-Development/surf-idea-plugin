@@ -1,0 +1,17 @@
+<html>
+<body>
+Reports non-<code>suspend</code> functions in <code>@RpcService</code> interfaces.
+<p>
+    Every RPC endpoint is invoked over the message broker and awaits a response asynchronously,
+    so all functions of a <code>@RpcService</code> interface must be declared <code>suspend</code>.
+    The RPC code generator rejects blocking functions.
+</p>
+<pre><code>
+@RpcService
+interface AccountService {
+    fun balance(id: Long): Long             // reported
+    suspend fun balance(id: Long): Long     // OK
+}
+</code></pre>
+</body>
+</html>

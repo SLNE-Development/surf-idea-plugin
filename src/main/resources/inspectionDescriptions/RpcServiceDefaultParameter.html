@@ -1,0 +1,16 @@
+<html>
+<body>
+Reports default parameter values on <code>@RpcService</code> endpoint parameters.
+<p>
+    The RPC client always transmits the complete argument array, and the server-side invoker never
+    applies Kotlin default values. A default value on an RPC endpoint parameter therefore suggests
+    optionality that does not exist on the wire.
+</p>
+<pre><code>
+@RpcService
+interface SearchService {
+    suspend fun search(query: String, limit: Int = 10): List&lt;String&gt;   // reported
+}
+</code></pre>
+</body>
+</html>

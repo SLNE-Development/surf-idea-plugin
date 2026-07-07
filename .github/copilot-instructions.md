@@ -16,43 +16,48 @@
 ./gradlew verifyPlugin
 ```
 
-JDK 21 is required. Kotlin 2.3.0 with `-Xcontext-parameters` enabled.
+JDK 21 is required. Kotlin 2.3.x with `-Xcontext-parameters` enabled.
 
 ## Architecture
 
-This is an IntelliJ IDEA plugin (`org.jetbrains.intellij.platform` Gradle plugin) providing inspections, code generation, line markers, and framework detection for the **Surf ecosystem**: `surf-api`, `surf-redis`, and `surf-database-r2dbc`.
+This is an IntelliJ IDEA plugin (`org.jetbrains.intellij.platform` Gradle plugin) providing inspections, code generation, line markers, and framework detection for the **Surf ecosystem**: `surf-api`, `surf-redis`, and `surf-rabbitmq`.
 
 ### Module layout (`src/main/kotlin/dev/slne/surf/idea/surfideaplugin/`)
 
-- **`redis/`** — Largest module. Inspections, line markers, code generation, postfix templates, inlay hints, and a tool window for `surf-redis`. Annotation-driven handler pattern (`@OnRedisEvent`, `@HandleRedisRequest`).
-- **`surfapi/`** — Platform detection (Paper, Velocity, Core) and API usage inspections for `surf-api`.
-- **`databse/`** — Transaction context inspections for `surf-database-r2dbc`. (Note: the package is intentionally spelled `databse`.)
-- **`common/`** — Shared utilities: `SurfLibraryDetector` (classpath detection), PSI helpers, K2 Analysis API extensions.
-- **`projectgen/`** — Module builder for new Surf projects.
+- **`redis/`** — Inspections, line markers, and code generation for `surf-redis`. Annotation-driven handler pattern (`@OnRedisEvent`, `@HandleRedisRequest`).
+- **`rabbitmq/`** — Inspections, line markers, completion, and new-file actions for `surf-rabbitmq`: packet-based messaging (`@RabbitHandler`, `RabbitRequestPacket`/`RabbitResponsePacket`) and the `@RpcService`-based RPC system (`inspection/rpc/`).
+- **`surfapi/`** — Platform support (Paper, Velocity, Core), internal-API gating (`@InternalAPIMarker`), and listener generation for `surf-api`.
+- **`common/`** — Shared infrastructure: `common/library/SurfLibraryDetector` + `SurfLibraryMarker` (cached classpath detection), inspection base classes (`common/inspection/`), quick fixes, PSI helpers, K2 Analysis API extensions.
 
 ### Extension points
 
-All inspections, line markers, facets, postfix templates, and actions are registered in `src/main/resources/META-INF/plugin.xml`. Every new extension must be declared there.
+All inspections, line markers, and actions are registered in `src/main/resources/META-INF/plugin.xml`. Every new extension must be declared there.
 
 ## Key Conventions
 
 ### Inspection pattern
 
-All inspections extend `KotlinApplicableInspectionBase<ElementType, ContextType>` and follow this structure:
+Inspections extend one of two Surf base classes (both gate on library presence per file):
 
-1. **`buildVisitor()`** — Use `classVisitor { }` or `namedFunctionVisitor { }` DSL to dispatch to `visitTargetElement()`.
-2. **`isApplicableByPsi()`** — Fast PSI-level filtering. Always call `SurfLibraryDetector.hasSurfRedis(element)` (or the relevant library check) first to bail out early if the library isn't on the classpath.
-3. **`getApplicableRanges()`** — Use `ApplicabilityRange.single(element) { ... }` to highlight the relevant token (e.g., `nameIdentifier`, a modifier keyword).
-4. **`KaSession.prepareContext()`** — K2 Analysis API phase for accurate type/symbol resolution. Return `null` to skip the element.
-5. **`InspectionManager.createProblemDescriptor()`** — Build the problem with a highlight type and quick fix (use `.asQuickFix()` to wrap Kotlin quick fixes).
+- **`SurfApplicableInspection<ElementType, ContextType>`** (preferred; wraps the K2 `KotlinApplicableInspectionBase`):
+  1. **`buildVisitor()`** — Use `classVisitor { }` / `namedFunctionVisitor { }` / `parameterVisitor { }` DSL to dispatch to `visitTargetElement()`.
+  2. **`isApplicableByPsi()`** — Fast PSI-level filtering only (no analysis; use `hasAnnotationPsi`/`KotlinPsiHeuristics`).
+  3. **`getApplicableRanges()`** — Use `ApplicabilityRange.single(element) { ... }` or `ApplicabilityRanges.declarationName(element)`.
+  4. **`KaSession.prepareContext()`** — K2 Analysis API phase for accurate type/symbol resolution. Return `null` to skip the element.
+  5. **`InspectionManager.createProblemDescriptor()`** — Build the problem with a highlight type and quick fixes (use `.asQuickFix()` to wrap ModCommand actions).
+- **`SurfKotlinInspection`** (classic `AbstractKotlinInspection`) for visitors that need to report on multiple element kinds; call `analyze(element) { ... }` inside the visitor for resolution.
+
+Both take the required `SurfLibraryMarker`s as constructor varargs — no manual library check needed inside the inspection.
 
 ### Library detection gate
 
-Every feature (inspection, line marker, postfix template) must check for the relevant Surf library on the module classpath before activating. Use `SurfLibraryDetector`:
+Features outside the inspection bases (line markers, actions, completion) must check the module classpath before activating:
 
 ```kotlin
-if (!SurfLibraryDetector.hasSurfRedis(element)) return false
+if (!module.hasLibrary(SurfLibraryMarker.SURF_REDIS_API)) return
 ```
+
+`SurfLibraryDetector` caches per module and invalidates on project-root changes — call it freely, do not add ad-hoc caches.
 
 ### Kotlin context parameters
 
@@ -64,12 +69,8 @@ The plugin targets **K2 mode only** (`<supportsKotlinPluginMode supportsK2="true
 
 ### Message bundle
 
-All user-facing strings (inspection display names, group names, hint descriptions) go in `src/main/resources/messages/SurfBundle.properties`, accessed via `SurfBundle.message("key")`. Each inspection also needs an HTML description file in `src/main/resources/inspectionDescriptions/<ShortName>.html`.
+Inspection display names and group names go in `src/main/resources/messages/SurfBundle.properties` (referenced from `plugin.xml` via `key`/`groupKey`). Each inspection also needs an HTML description file in `src/main/resources/inspectionDescriptions/<ShortName>.html` whose name matches the registered `shortName` exactly.
 
 ### Class name constants
 
-FQNs for Surf framework annotations and classes are centralized in constant objects (e.g., `SurfRedisClassNames`). Always reference these constants rather than using string literals.
-
-### Facet detection
-
-Each Surf library has a `FacetBasedFrameworkDetector` + `Facet` + `FacetType` + `FacetConfiguration` set. Framework detection auto-activates when the library appears on the classpath.
+FQNs for Surf framework annotations and classes are centralized in constant objects (e.g., `SurfRedisClassNames`, `SurfRabbitClassNames`). Always reference these constants rather than using string literals. Icons: use `AllIcons` or the plugin's own `icons/` resources — never IDE-edition-specific icon classes (e.g. `JavaUltimateIcons`).

@@ -1,0 +1,16 @@
+<html>
+<body>
+Reports <code>@RabbitHandler</code> functions that never call <code>respond(...)</code> on the
+received request packet.
+<p>
+    Every <code>RabbitRequestPacket</code> expects exactly one response. A handler that does not
+    respond causes the requesting side to wait until its request times out.
+</p>
+<pre><code>
+@RabbitHandler
+suspend fun handle(request: MyRequestPacket) {
+    request.respond(MyResponsePacket(...))   // required
+}
+</code></pre>
+</body>
+</html>

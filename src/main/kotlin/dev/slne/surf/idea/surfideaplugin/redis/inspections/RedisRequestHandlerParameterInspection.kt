@@ -13,6 +13,7 @@ import dev.slne.surf.idea.surfideaplugin.redis.SurfRedisClassNames
 import dev.slne.surf.idea.surfideaplugin.redis.inspections.RedisRequestHandlerParameterInspection.Context
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.types.KaClassType
+import org.jetbrains.kotlin.analysis.api.types.KaTypeArgumentWithVariance
 import org.jetbrains.kotlin.idea.codeinsight.api.applicators.ApplicabilityRange
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtVisitor
@@ -24,6 +25,8 @@ class RedisRequestHandlerParameterInspection :
     sealed interface Context {
         data class WrongParameterCount(val actualCount: Int) : Context
         data object WrongParameterType : Context
+        data object MissingRequestType : Context
+        data object WrongRequestType : Context
     }
 
     override fun buildVisitor(
@@ -33,7 +36,7 @@ class RedisRequestHandlerParameterInspection :
         visitTargetElement(element, holder, isOnTheFly)
     }
 
-    override fun isSurfApplicableByPsi(element: KtNamedFunction): Boolean {
+    override fun isApplicableByPsi(element: KtNamedFunction): Boolean {
         return element.hasAnnotationPsi(SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_FQN)
     }
 
@@ -46,6 +49,13 @@ class RedisRequestHandlerParameterInspection :
         val isRequestContext = returnTypeClass.classId == SurfRedisClassNames.REQUEST_CONTEXT_CLASS_ID
 
         if (!isRequestContext) return Context.WrongParameterType
+
+        val requestType = (returnTypeClass.typeArguments.singleOrNull() as? KaTypeArgumentWithVariance)?.type
+            ?: return Context.MissingRequestType
+
+        if (!requestType.isSubtypeOf(SurfRedisClassNames.REDIS_REQUEST_CLASS_ID)) {
+            return Context.WrongRequestType
+        }
 
         return null
     }
@@ -74,6 +84,17 @@ class RedisRequestHandlerParameterInspection :
                 append("Parameter of @")
                 append(SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_FQN.shortNameString())
                 append(" handler must be RequestContext<T : RedisRequest>")
+            }
+
+            Context.MissingRequestType -> buildString {
+                append("RequestContext of @")
+                append(SurfRedisClassNames.HANDLE_REDIS_REQUEST_ANNOTATION_FQN.shortNameString())
+                append(" handler needs a concrete request type argument (RequestContext<T : RedisRequest>)")
+            }
+
+            Context.WrongRequestType -> buildString {
+                append("Type argument of RequestContext must be a subtype of ")
+                append(SurfRedisClassNames.REDIS_REQUEST_CLASS_FQN.shortNameString())
             }
         }
 

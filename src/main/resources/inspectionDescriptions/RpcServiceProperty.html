@@ -1,0 +1,17 @@
+<html>
+<body>
+Reports properties declared in <code>@RpcService</code> interfaces.
+<p>
+    An RPC service contract consists of callable endpoints only. Properties have no RPC
+    representation and are rejected by the RPC code generator. Use a <code>suspend</code> function
+    instead.
+</p>
+<pre><code>
+@RpcService
+interface StatusService {
+    val status: String                  // reported
+    suspend fun status(): String        // OK
+}
+</code></pre>
+</body>
+</html>

@@ -5,7 +5,8 @@ import com.intellij.codeInsight.actions.CodeInsightAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
+import dev.slne.surf.idea.surfideaplugin.common.library.hasLibrary
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
 import org.jetbrains.kotlin.idea.base.util.module
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
@@ -16,7 +17,7 @@ class GenerateRabbitRequestHandlerCodeInsightAction : CodeInsightAction() {
     override fun getHandler(): CodeInsightActionHandler = handler
 
     override fun isValidForFile(project: Project, editor: Editor, file: PsiFile): Boolean {
-        if (!SurfLibraryDetector.hasSurfRabbitMqServer(file.module ?: return false)) return false
+        if ((file.module ?: return false).hasLibrary(SurfLibraryMarker.SURF_RABBITMQ_SERVER_API).not()) return false
         val caretElement = file.findElementAt(editor.caretModel.offset) ?: return false
         return caretElement.getParentOfType<KtClassOrObject>(strict = false) != null
     }

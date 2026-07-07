@@ -4,7 +4,7 @@ import com.intellij.codeInsight.completion.*
 import com.intellij.openapi.project.DumbService
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.util.ProcessingContext
-import dev.slne.surf.idea.surfideaplugin.common.facet.hasLibrary
+import dev.slne.surf.idea.surfideaplugin.common.library.hasLibrary
 import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
 import dev.slne.surf.idea.surfideaplugin.surfapi.service.internalApiService
 import org.jetbrains.kotlin.idea.KotlinLanguage
@@ -54,7 +54,7 @@ class InternalApiCompletionContributor : CompletionContributor() {
                 return
             }
 
-            val filteringSession = internalApiService.createFilteringSession(position)
+            val filteringSession = internalApiService.createFilteringSession()
 
             result.runRemainingContributors(parameters) { completionResult ->
                 val lookupElement = completionResult.lookupElement

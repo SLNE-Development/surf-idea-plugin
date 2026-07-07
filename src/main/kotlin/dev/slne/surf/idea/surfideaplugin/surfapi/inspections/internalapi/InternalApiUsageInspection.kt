@@ -30,7 +30,7 @@ class InternalApiUsageInspection :
         }
     }
 
-    override fun isSurfApplicableByPsi(element: KtNameReferenceExpression): Boolean {
+    override fun isApplicableByPsi(element: KtNameReferenceExpression): Boolean {
         return element.getReferencedName().isNotBlank()
     }
 

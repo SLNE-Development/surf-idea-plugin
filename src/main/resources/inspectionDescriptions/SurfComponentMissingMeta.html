@@ -1,0 +1,16 @@
+<html>
+<body>
+Reports concrete <code>AbstractComponent</code> subclasses without a component annotation.
+<p>
+    <code>AbstractComponent</code> requires the concrete class to carry an annotation that is
+    (meta-)annotated with <code>@SurfComponentMeta</code> — for example <code>@Service</code> or
+    <code>@Repository</code>. Without one, the component's init block throws at instantiation.
+</p>
+<pre><code>
+@Service
+class PlayerService : AbstractComponent() { ... }   // OK
+
+class PlayerService : AbstractComponent() { ... }   // reported
+</code></pre>
+</body>
+</html>

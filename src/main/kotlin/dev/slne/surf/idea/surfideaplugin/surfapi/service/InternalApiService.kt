@@ -7,7 +7,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.PsiElement
-import dev.slne.surf.idea.surfideaplugin.common.facet.SurfLibraryDetector
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryDetector
 import dev.slne.surf.idea.surfideaplugin.surfapi.SurfApiClassNames
 import org.jetbrains.kotlin.analysis.api.KaContextParameterApi
 import org.jetbrains.kotlin.analysis.api.KaSession
@@ -30,13 +30,13 @@ class InternalApiService(private val project: Project) {
         get() = ProjectFileIndex.getInstance(project)
 
     fun isAvailableIn(module: Module): Boolean {
-        return SurfLibraryDetector.isClassInModuleClasspath(
+        return SurfLibraryDetector.hasClass(
             module,
             SurfApiClassNames.INTERNAL_API_MARKER_ANNOTATION,
         )
     }
 
-    fun createFilteringSession(useSiteElement: PsiElement): InternalApiFilteringSession {
+    fun createFilteringSession(): InternalApiFilteringSession {
         return InternalApiFilteringSession()
     }
 

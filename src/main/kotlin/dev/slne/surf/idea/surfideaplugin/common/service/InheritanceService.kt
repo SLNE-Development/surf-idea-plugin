@@ -7,7 +7,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.idea.compilerPlugin.parcelize.quickfixes.shortenReferences
+import org.jetbrains.kotlin.idea.base.codeInsight.ShortenReferencesFacility
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtPsiFactory
@@ -26,10 +26,11 @@ class InheritanceService(
 
     suspend fun implementInterface(target: KtClassOrObject, interfaceId: ClassId) {
         writeCommandAction(project, "Implement ${interfaceId.shortClassName}") {
-            target.addSuperTypeListEntry(
+            val entry = target.addSuperTypeListEntry(
                 KtPsiFactory(project)
                     .createSuperTypeEntry(interfaceId.asFqNameString())
-            ).shortenReferences()
+            )
+            ShortenReferencesFacility.getInstance().shorten(entry)
         }
     }
 

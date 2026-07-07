@@ -1,0 +1,18 @@
+<html>
+<body>
+Reports <code>@OnRedisEvent</code> handlers whose parameter is an abstract or sealed event type.
+<p>
+    surf-redis dispatches events by the <b>exact runtime class</b> of the published event — there
+    is no polymorphic lookup. Since an abstract type can never be the exact class of a published
+    event, such a handler is registered but never invoked. Declare the parameter with a concrete
+    event class instead.
+</p>
+<pre><code>
+@OnRedisEvent
+fun onEvent(event: PlayerJoinedEvent) { ... }   // OK (concrete)
+
+@OnRedisEvent
+fun onEvent(event: RedisEvent) { ... }          // reported — never fires
+</code></pre>
+</body>
+</html>

@@ -47,10 +47,6 @@ class NewRabbitPacketDialog(
             PacketType.RESPONSE -> "New Rabbit Response Packet"
         }
 
-        createNewResponseProperty.afterChange { value ->
-            println("createNewResponseProperty changed to $value")
-        }
-
         init()
     }
 

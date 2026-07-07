@@ -18,15 +18,9 @@ class ChangeModifierFix(
 
     override fun getPresentation(context: ActionContext, element: KtModifierListOwner): Presentation? {
         val actionName = when {
-            addModifier != null && removeModifier != null ->
-                "Change '${removeModifier.value}' to '${addModifier.value}'"
-
-            removeModifier != null ->
-                "Remove '${removeModifier.value}' modifier"
-
-            addModifier != null ->
-                "Add '${addModifier.value}' modifier"
-
+            addModifier != null && removeModifier != null -> "Change '${removeModifier.value}' to '${addModifier.value}'"
+            removeModifier != null -> "Remove '${removeModifier.value}' modifier"
+            addModifier != null -> "Add '${addModifier.value}' modifier"
             else -> return null
         }
         return Presentation.of(actionName)

@@ -5,7 +5,8 @@ import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.util.TextRange
-import dev.slne.surf.idea.surfideaplugin.rabbitmq.RabbitFacetAwareKotlinApplicableInspectionBase
+import dev.slne.surf.idea.surfideaplugin.common.inspection.SurfApplicableInspection
+import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.SurfRabbitClassNames
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.util.isRabbitHandler
 import dev.slne.surf.idea.surfideaplugin.rabbitmq.util.isRabbitHandlerPsi
@@ -16,7 +17,7 @@ import org.jetbrains.kotlin.psi.KtVisitor
 import org.jetbrains.kotlin.psi.namedFunctionVisitor
 
 class RabbitHandlerParameterInspection :
-    RabbitFacetAwareKotlinApplicableInspectionBase<KtNamedFunction, RabbitHandlerParameterInspection.Context>() {
+    SurfApplicableInspection<KtNamedFunction, RabbitHandlerParameterInspection.Context>(SurfLibraryMarker.SURF_RABBITMQ_SERVER_API) {
     sealed interface Context {
         data object WrongParameterCount : Context
         data object WrongParameterType : Context

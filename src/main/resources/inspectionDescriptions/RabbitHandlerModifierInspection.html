@@ -1,0 +1,12 @@
+<html>
+<body>
+Reports <code>@RabbitHandler</code> functions with modifiers that prevent the handler from being
+invoked.
+<p>
+    Handlers are looked up reflectively via <code>MethodHandles.Lookup</code> when the containing
+    instance is registered. Modifiers such as <code>abstract</code>, <code>open</code>,
+    <code>override</code>, or <code>inline</code> either make the method non-invokable or break the
+    lookup.
+</p>
+</body>
+</html>

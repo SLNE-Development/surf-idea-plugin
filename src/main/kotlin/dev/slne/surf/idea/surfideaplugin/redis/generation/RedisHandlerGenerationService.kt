@@ -17,7 +17,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.InheritanceUtil
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
-import dev.slne.surf.idea.surfideaplugin.common.facet.hasLibrary
+import dev.slne.surf.idea.surfideaplugin.common.library.hasLibrary
 import dev.slne.surf.idea.surfideaplugin.common.library.SurfLibraryMarker
 import dev.slne.surf.idea.surfideaplugin.common.util.isConcreteClass
 import org.jetbrains.kotlin.idea.base.codeInsight.ShortenReferencesFacility
