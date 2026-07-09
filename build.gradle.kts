@@ -21,7 +21,9 @@ dependencies {
         intellijIdea("2026.1.4")
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
 
+        bundledPlugin("com.intellij.java")
         bundledPlugin("org.jetbrains.kotlin")
+        bundledPlugin("org.jetbrains.java.decompiler")
 
         pluginVerifier()
         zipSigner()

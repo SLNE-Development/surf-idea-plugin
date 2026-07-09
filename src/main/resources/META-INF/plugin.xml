@@ -39,11 +39,23 @@
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
     <depends>org.jetbrains.kotlin</depends>
+    <depends optional="true" config-file="surf-jarviewer-decompiler.xml">org.jetbrains.java.decompiler</depends>
 
     <resource-bundle>messages.SurfBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+        <!-- Jar Viewer -->
+        <treeStructureProvider
+                implementation="dev.slne.surf.idea.surfideaplugin.jarviewer.JarContentTreeStructureProvider"/>
+        <java.elementFinder
+                implementation="dev.slne.surf.idea.surfideaplugin.jarviewer.BrowsedJarClassFinder"/>
+        <resolveScopeProvider
+                implementation="dev.slne.surf.idea.surfideaplugin.jarviewer.BrowsedJarResolveScopeProvider"/>
+        <resolveScopeEnlarger
+                implementation="dev.slne.surf.idea.surfideaplugin.jarviewer.BrowsedJarResolveScopeEnlarger"/>
+
         <!-- Surf-API -->
         <localInspection
                 language="kotlin"
